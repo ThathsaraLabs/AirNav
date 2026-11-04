@@ -55,7 +55,7 @@ function route() {
   const page = Object.hasOwn(pages, requested) ? requested : 'overview';
   $('.workspace').classList.toggle('workspace-studio', page === 'studio');
   $('.workspace').classList.toggle('workspace-tracker', page === 'tracker');
-  drawingStudio.setCameraReady(page === 'studio' && running);
+  drawingStudio.setCameraReady(page === 'studio' && running && Boolean(handLandmarker));
   if (page === 'studio') $('#studio-camera-status').append(cameraFrame, cameraMessage);
   else if (page === 'tracker') $('#tracker-preview').append(cameraFrame, cameraMessage);
   else {
@@ -201,7 +201,7 @@ async function startCamera() {
   buttons.forEach(button => { button.disabled = true; });
   $('#camera-button span').textContent = 'Getting ready…';
   const message = $('#camera-message'); message.classList.remove('error');
-  message.textContent = 'Allow camera access. The tracking model may take a moment to load.';
+  message.textContent = 'Waiting for camera access. Choose Allow in your browser if prompted.';
   let acquiredStream;
   try {
     if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) throw new Error('Open this demo on HTTPS or localhost to enable your webcam.');
@@ -211,20 +211,34 @@ async function startCamera() {
     stream = acquiredStream;
     video.srcObject = stream;
     await video.play();
-    if (!handLandmarker) handLandmarker = await createTracker();
-    if (generation !== cameraGeneration) return;
     canvas.width = video.videoWidth; canvas.height = video.videoHeight;
     running = true; cameraStarted = performance.now(); fpsTime = cameraStarted; frames = 0; lastVideoTime = -1;
-    drawingStudio.setCameraReady(!$('#studio').hidden);
     $('#camera-placeholder').hidden = true;
     $('#camera-badge').classList.add('live'); $('#camera-badge').innerHTML = '<span></span> Live';
     $('#camera-button').classList.add('running');
     $('#camera-button span').textContent = 'Stop camera';
     $$('[data-action="start"]:not(#camera-button)').forEach(button => { button.innerHTML = 'Stop camera <svg><use href="#i-camera"/></svg>'; });
-    message.textContent = 'Camera is live. Raise only your index finger to begin.';
+    stream.getVideoTracks()[0].addEventListener('ended', () => { if (running) { stopCamera(); message.textContent = 'Camera disconnected. Reconnect it and enable the camera again.'; } });
+    if (!handLandmarker) {
+      updateTracker(0, 'Loading hand tracker');
+      message.textContent = 'Camera is live. Loading the hand tracking model…';
+      try {
+        handLandmarker = await createTracker();
+      } catch {
+        if (generation !== cameraGeneration) return;
+        updateTracker(0, 'Hand tracking unavailable');
+        setTracking('Hand tracking unavailable');
+        message.textContent = 'Camera is live. The hand tracking model could not load. Check your connection, then stop and restart the camera to retry.';
+        message.classList.add('error');
+        return;
+      }
+    }
+    if (generation !== cameraGeneration) return;
+    drawingStudio.setCameraReady(!$('#studio').hidden);
+    fpsTime = performance.now();
+    message.textContent = 'Camera is live. Show your hand to begin tracking.';
     setTracking('Looking for your hand');
     addActivity('Camera connected', 'Hand tracking is ready');
-    stream.getVideoTracks()[0].addEventListener('ended', () => { if (running) { stopCamera(); message.textContent = 'Camera disconnected. Reconnect it and enable the camera again.'; } });
     animation = requestAnimationFrame(trackFrame);
   } catch (error) {
     acquiredStream?.getTracks().forEach(track => track.stop());
