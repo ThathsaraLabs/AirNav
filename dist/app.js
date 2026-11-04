@@ -1,5 +1,6 @@
 import { studioGesture, isIndexPointing, mapPointer, mapPointerToCanvas, smoothDrawingPointer, DwellController } from './gestures.js';
 import { createDrawingStudio } from './studio.js';
+import { drawNeonHands } from './neon.js';
 
 const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
@@ -170,9 +171,9 @@ function setTracking(message, active = false) {
   status.append(dot, message);
 }
 
-function updateTracker(count, message = running ? (count ? 'Hand detected' : 'Show your hand') : 'Camera off') {
+function updateTracker(count, message = running ? (count ? `Hands: ${count}` : 'Show both hands') : 'Camera off') {
   if (trackerHand.textContent !== message) trackerHand.textContent = message;
-  const landmarks = `${count} / 21 landmarks`;
+  const landmarks = `${count * 21} / 42 landmarks`;
   if (trackerLandmarks.textContent !== landmarks) trackerLandmarks.textContent = landmarks;
 }
 
@@ -187,7 +188,7 @@ function resetPointer() {
 async function createTracker() {
   const { FilesetResolver, HandLandmarker } = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.32/vision_bundle.mjs');
   const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.32/wasm');
-  const options = { baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task', delegate: 'GPU' }, runningMode: 'VIDEO', numHands: 1, minHandDetectionConfidence: .6, minHandPresenceConfidence: .6, minTrackingConfidence: .6 };
+  const options = { baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task', delegate: 'GPU' }, runningMode: 'VIDEO', numHands: 2, minHandDetectionConfidence: .6, minHandPresenceConfidence: .6, minTrackingConfidence: .6 };
   try { return await HandLandmarker.createFromOptions(vision, options); }
   catch { options.baseOptions.delegate = 'CPU'; return await HandLandmarker.createFromOptions(vision, options); }
 }
@@ -271,14 +272,18 @@ function stopCamera() {
   setTracking('Camera is off'); addActivity('Camera stopped', 'Webcam access released');
 }
 
-function drawHand(points) {
+function drawHand(hands) {
   context.clearRect(0, 0, canvas.width, canvas.height);
   if (!tracker.hidden) {
-    updateTracker(points?.length ?? 0);
-    if (trackerOverlay.getAttribute('aria-pressed') === 'false') return;
+    updateTracker(hands.length);
+    if (trackerOverlay.getAttribute('aria-pressed') === 'true') {
+      drawNeonHands(context, hands, canvas.width, canvas.height);
+    }
+    return;
   }
+  const points = hands[0];
   if (!points) return;
-  context.lineWidth = 2; context.strokeStyle = tracker.hidden ? '#dce7b9cc' : '#50ffcf';
+  context.lineWidth = 2; context.strokeStyle = '#dce7b9cc';
   for (const [a, b] of links) { context.beginPath(); context.moveTo(points[a].x * canvas.width, points[a].y * canvas.height); context.lineTo(points[b].x * canvas.width, points[b].y * canvas.height); context.stroke(); }
   points.forEach((point, index) => { context.beginPath(); context.fillStyle = index === 8 ? '#f78460' : '#f4f8e4'; context.arc(point.x * canvas.width, point.y * canvas.height, index === 8 ? 7 : 3, 0, Math.PI * 2); context.fill(); });
 }
@@ -328,7 +333,7 @@ function trackFrame(now) {
     if (video.readyState >= 2 && video.currentTime !== lastVideoTime && now - lastInference >= 33) {
       lastVideoTime = video.currentTime; lastInference = now;
       const result = handLandmarker.detectForVideo(video, now);
-      const points = result.landmarks[0]; drawHand(points);
+      const points = result.landmarks[0]; drawHand(result.landmarks);
       const inStudio = !$('#studio').hidden;
       if (inStudio && points?.length === 21) {
         const mode = studioGesture(points);
