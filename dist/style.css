@@ -83,7 +83,7 @@
   outline: 3px solid #6742b2 !important;
 }
 
-:root { --developer-strip-height: 68px; }
+:root { --developer-strip-height: 64px; }
 
 .developer-credit {
   position: sticky;
@@ -93,8 +93,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  background: #fff;
+  gap: clamp(8px, 3vw, 16px);
+  background: var(--bg);
   border-bottom: 1px solid var(--line);
 }
 
@@ -112,14 +112,34 @@
 .developer-logos {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  padding: 3px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
 }
 
 .developer-logos img {
   display: block;
   object-fit: contain;
-  background: #fff;
-  border-radius: 4px;
+}
+
+.developer-logo-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--line);
+}
+
+.developer-logo-knu {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  overflow: hidden;
+}
+
+.developer-logo-knu img {
+  width: 114px;
+  height: auto;
 }
 
 @media (max-width: 560px) {
@@ -128,9 +148,9 @@
 }
 
 @media (max-width: 360px) {
-  .developer-credit { gap: 8px; }
   .developer-credit > span { font-size: 11px; }
-  .developer-logos img:last-child { width: 96px; }
+  .developer-logos { gap: 8px; padding-inline: 8px; }
+  .developer-logo-knu img { width: 100px; }
 }
 
 .studio-board {
