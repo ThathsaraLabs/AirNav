@@ -263,6 +263,7 @@
 .workspace-tracker .control-panel { display: none; }
 
 body:has(.workspace-tracker) { overflow: hidden; }
+body:has(.workspace-tracker) #gesture-cursor { display: none !important; }
 body:has(.workspace-tracker) > .developer-credit,
 body:has(.workspace-tracker) > .sidebar,
 body:has(.workspace-tracker) .topbar,
@@ -304,7 +305,7 @@ body:has(.workspace-tracker) .topbar,
   font-size: 13px;
 }
 
-#tracker-preview { position: absolute; inset: 0; }
+#tracker-preview { position: absolute; inset: 0; cursor: none; }
 
 #tracker-preview .camera-frame {
   position: absolute;
