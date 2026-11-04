@@ -351,3 +351,15 @@ body:has(.workspace-tracker) .topbar,
 @media (max-width: 380px) {
   .sidebar .nav-link { width: 34px; }
 }
+
+.practice-target {
+  gap: 6px;
+  padding: 14px;
+  text-align: center;
+}
+
+.practice-target strong { font-size: 15px; }
+.practice-step { font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.practice-instruction { max-width: 26ch; font-size: 12px; line-height: 1.4; }
+.practice-target .practice-done { display: none; font-size: 11px; font-weight: 700; }
+.practice-target.completed .practice-done { display: block; }
