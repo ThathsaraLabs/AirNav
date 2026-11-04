@@ -37,7 +37,6 @@ export function createGuideLandmarks(faceCount, poseCount, status) {
   };
   const layers = [pose, face];
   let nextLayer = 0;
-  let nextInference = 0;
   let visionLoad;
 
   function updateStatus() {
@@ -85,12 +84,10 @@ export function createGuideLandmarks(faceCount, poseCount, status) {
       visionLoad ??= loadVision().catch(error => { visionLoad = undefined; throw error; });
       missing.forEach(load);
     }
-    if (now < nextInference) return;
-    const layer = layers[nextLayer];
+    const ready = layers.filter(layer => layer.detector);
+    if (!ready.length) return false;
+    const layer = ready[nextLayer % ready.length];
     nextLayer = (nextLayer + 1) % layers.length;
-    if (!layer.detector) return;
-    // Alternate extra models so a single frame runs at most one of them.
-    nextInference = now + 40;
     try {
       const points = layer.detector.detectForVideo(video, now)[layer.result][0] ?? [];
       setPoints(layer, points.map(point => (
@@ -106,6 +103,7 @@ export function createGuideLandmarks(faceCount, poseCount, status) {
       updateStatus();
       try { detector.close(); } catch (closeError) { console.warn(closeError); }
     }
+    return true;
   }
 
   function draw(context, width, height) {

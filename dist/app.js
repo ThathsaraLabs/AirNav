@@ -1,7 +1,7 @@
 import { studioGesture, isIndexPointing, isTwoFingerScroll, nearestHand, mapPointer, mapPointerToCanvas, smoothDrawingPointer, ScrollMotion, DwellController } from './gestures.js';
 import { createDrawingStudio } from './studio.js';
 import { drawNeonHands } from './neon.js';
-import { createGuideLandmarks, createVideoLandmarker, loadVision } from './guide-landmarks.js';
+import { createGuideLandmarks, createVideoLandmarker, loadVision } from './guide-landmarks.js?v=31';
 
 const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
@@ -30,6 +30,7 @@ trackerOverlay.addEventListener('click', () => {
 });
 let handLandmarker, stream, running = false, loading = false, animation;
 let smooth = .3, pointer = null, lastVideoTime = -1, lastInference = 0;
+let guideHands = [], guideModelTurn = false;
 let lastPointerAt = 0;
 const scrollMotion = new ScrollMotion();
 let activeWrist;
@@ -59,6 +60,8 @@ try {
 function route() {
   const requested = location.hash.slice(1);
   const page = Object.hasOwn(pages, requested) ? requested : 'overview';
+  guideHands = [];
+  guideModelTurn = false;
   if (page !== 'guide') guideLandmarks.clear();
   $('.workspace').classList.toggle('workspace-studio', page === 'studio');
   $('.workspace').classList.toggle('workspace-tracker', page === 'tracker');
@@ -271,6 +274,8 @@ function stopCamera() {
   cameraGeneration++;
   if (running) totalCameraTime += performance.now() - cameraStarted;
   running = false; cancelAnimationFrame(animation);
+  guideHands = [];
+  guideModelTurn = false;
   guideLandmarks.clear(true);
   updateTracker(0);
   drawingStudio.setCameraReady(false);
@@ -380,6 +385,36 @@ function movePointer(point, now, mode = 'select') {
   }
 }
 
+function updateHandGestures(hands, now) {
+  let points = nearestHand(hands, activeWrist);
+  if (!points) {
+    resetPointer();
+    points = hands[0];
+  }
+  activeWrist = points?.[0];
+  const inStudio = !$('#studio').hidden;
+  const scrolling = tracker.hidden && !inStudio && !$('dialog[open]') && isTwoFingerScroll(points, scrollMotion.active);
+  if (!scrolling) scrollMotion.reset();
+  if (scrolling) {
+    if (!scrollMotion.active) resetPointer();
+    const pixels = scrollMotion.update((points[5].y + points[17].y) / 2, innerHeight);
+    if (pixels) window.scrollBy({ top: pixels, behavior: 'instant' });
+    setTracking('Two-finger scroll', true);
+  } else if (!tracker.hidden || !handLandmarker) {
+    resetPointer();
+  } else if (inStudio && points?.length === 21) {
+    const mode = studioGesture(points);
+    setTracking(mode === 'draw' ? 'Drawing' : mode === 'select' ? 'Selecting tool' : 'Pen lifted', true);
+    movePointer(points[8], now, mode);
+  } else if (isIndexPointing(points)) {
+    setTracking('Index finger detected', true);
+    movePointer(points[8], now);
+  } else {
+    resetPointer();
+    setTracking(points ? 'Raise only your index finger' : 'Looking for your hand');
+  }
+}
+
 function trackFrame(now) {
   if (!running) return;
   try {
@@ -389,36 +424,18 @@ function trackFrame(now) {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         guideLandmarks.clear();
+        guideHands = [];
       }
-      if (!guide.hidden) guideLandmarks.update(video, now);
-      const hands = handLandmarker?.detectForVideo(video, now).landmarks ?? [];
-      let points = nearestHand(hands, activeWrist);
-      if (!points) {
-        resetPointer();
-        points = hands[0];
-      }
-      activeWrist = points?.[0];
-      drawHand(hands);
-      const inStudio = !$('#studio').hidden;
-      const scrolling = tracker.hidden && !inStudio && !$('dialog[open]') && isTwoFingerScroll(points, scrollMotion.active);
-      if (!scrolling) scrollMotion.reset();
-      if (scrolling) {
-        if (!scrollMotion.active) resetPointer();
-        const pixels = scrollMotion.update((points[5].y + points[17].y) / 2, innerHeight);
-        if (pixels) window.scrollBy({ top: pixels, behavior: 'instant' });
-        setTracking('Two-finger scroll', true);
-      } else if (!tracker.hidden || !handLandmarker) {
-        resetPointer();
-      } else if (inStudio && points?.length === 21) {
-        const mode = studioGesture(points);
-        setTracking(mode === 'draw' ? 'Drawing' : mode === 'select' ? 'Selecting tool' : 'Pen lifted', true);
-        movePointer(points[8], now, mode);
-      } else if (isIndexPointing(points)) {
-        setTracking('Index finger detected', true);
-        movePointer(points[8], now);
+      const teaching = !guide.hidden;
+      const ranGuideModel = teaching && (guideModelTurn || !handLandmarker) && guideLandmarks.update(video, now);
+      guideModelTurn = teaching && !ranGuideModel;
+      if (ranGuideModel) {
+        drawHand(guideHands);
       } else {
-        resetPointer();
-        setTracking(points ? 'Raise only your index finger' : 'Looking for your hand');
+        const hands = handLandmarker?.detectForVideo(video, now).landmarks ?? [];
+        if (teaching) guideHands = hands;
+        drawHand(hands);
+        updateHandGestures(hands, now);
       }
       frames++;
       if (now - fpsTime >= 1000) { $('#fps-label').textContent = `${Math.round(frames * 1000 / (now - fpsTime))} FPS`; frames = 0; fpsTime = now; }
@@ -427,6 +444,7 @@ function trackFrame(now) {
       setTracking('Waiting for camera frames');
       if (!guide.hidden) {
         guideLandmarks.clear();
+        guideHands = [];
         drawHand([]);
       }
       if (!tracker.hidden) {

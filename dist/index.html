@@ -5,7 +5,7 @@
   <meta name="theme-color" content="#f7f7f2">
   <title>AirNav — One finger. Full control.</title>
   <meta name="description" content="Explore a touch-free web. Control pages with your index finger using real-time webcam hand tracking.">
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./style.css?v=31">
 </head>
 <body>
   <svg class="icon-library" xmlns="http://www.w3.org/2000/svg"><defs>
@@ -214,7 +214,7 @@
   <div id="toast" class="toast" role="status" hidden></div>
   <dialog id="preferences"><div class="dialog-header"><span class="eyebrow">MAKE IT FEEL LIKE YOU</span><button class="round-button" data-action="close-settings" aria-label="Close preferences">×</button></div><h2>Your preferences<span>.</span></h2><p>Find a comfortable rhythm for your hand.</p><label for="dwell">Hold to click <output id="dwell-value">1.1 seconds</output></label><input id="dwell" type="range" min="600" max="2000" step="100" value="1100"><div class="setting-buttons"><button data-action="dwell-less">Faster −</button><button data-action="dwell-more">Slower +</button></div><label for="smoothing">Pointer smoothing <output id="smoothing-value">Balanced</output></label><input id="smoothing" type="range" min="10" max="50" step="5" value="30"><div class="setting-buttons"><button data-action="smooth-less">Smoother</button><button data-action="smooth-more">More responsive</button></div><p class="dialog-note">Preferences are saved in this browser. Raise only your index finger to navigate. Camera permission needs a click or tap to get started.</p><button class="dark-button" data-action="close-settings">All set <svg><use href="#i-check"/></svg></button></dialog>
   <dialog id="art-dialog"><div class="dialog-header"><span class="eyebrow">A CLOSER LOOK</span><button class="round-button" data-action="close-art" aria-label="Close artwork">×</button></div><div id="art-preview"></div><h2 id="art-title"></h2><p id="art-description"></p><div class="art-dialog-buttons"><button class="small-button" data-action="previous-art">← Previous</button><button class="small-button" data-action="next-art">Next →</button></div></dialog>
-  <script type="module" src="./app.js"></script>
-  <script type="module" src="./language.js"></script>
+  <script type="module" src="./app.js?v=31"></script>
+  <script type="module" src="./language.js?v=31"></script>
 </body>
 </html>
