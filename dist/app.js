@@ -266,8 +266,14 @@ function trackFrame(now) {
       lastVideoTime = video.currentTime; lastInference = now;
       const result = handLandmarker.detectForVideo(video, now);
       const points = result.landmarks[0]; drawHand(points);
-      if (points && isIndexPointing(points)) { setTracking('Index finger detected', true); movePointer(points[8], now); }
-      else { resetPointer(); setTracking(points ? 'Raise only your index finger' : 'Looking for your hand'); }
+      const inStudio = !$('#studio').hidden;
+      if (isIndexPointing(points, { requireOtherFingersCurled: !inStudio })) {
+        setTracking('Index finger detected', true);
+        movePointer(points[8], now);
+      } else {
+        resetPointer();
+        setTracking(points ? (inStudio ? 'Extend your index finger' : 'Raise only your index finger') : 'Looking for your hand');
+      }
       frames++;
       if (now - fpsTime >= 1000) { $('#fps-label').textContent = `${Math.round(frames * 1000 / (now - fpsTime))} FPS`; frames = 0; fpsTime = now; }
     } else if (now - lastInference > 500) { resetPointer(); setTracking('Waiting for camera frames'); }

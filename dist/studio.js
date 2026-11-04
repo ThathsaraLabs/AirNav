@@ -66,8 +66,7 @@ export function createDrawingStudio() {
     updateControls();
   }
 
-  function drawAt(source, x, y) {
-    if (active && active.source !== source) return;
+  function drawAt(x, y) {
     const rect = canvas.getBoundingClientRect();
     const point = {
       x: (x - rect.left) * canvas.width / rect.width,
@@ -75,7 +74,7 @@ export function createDrawingStudio() {
     };
     if (!active) {
       const width = size * (tool === 'eraser' ? 3 : tool === 'pencil' ? .55 : 1);
-      active = { source, tool, width, color, points: [point] };
+      active = { tool, width, color, points: [point] };
       commit(active);
       paint(active, point, point);
       return;
@@ -84,24 +83,6 @@ export function createDrawingStudio() {
     if (Math.hypot(point.x - previous.x, point.y - previous.y) < .7) return;
     active.points.push(point);
     paint(active, previous, point);
-  }
-
-  function end(source) {
-    if (active?.source === source) active = null;
-  }
-
-  canvas.addEventListener('pointerdown', event => {
-    if (event.button !== 0) return;
-    end('air');
-    if (active) return;
-    canvas.setPointerCapture(event.pointerId);
-    drawAt(event.pointerId, event.clientX, event.clientY);
-  });
-  canvas.addEventListener('pointermove', event => {
-    if (active?.source === event.pointerId) drawAt(event.pointerId, event.clientX, event.clientY);
-  });
-  for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) {
-    canvas.addEventListener(type, event => end(event.pointerId));
   }
 
   studio.addEventListener('click', event => {
@@ -142,13 +123,13 @@ export function createDrawingStudio() {
       if (cameraReady === ready) return;
       cameraReady = ready;
       airEnabled = ready;
-      end('air');
+      active = null;
       updateControls();
     },
     moveAir(element, x, y) {
-      if (airEnabled && element === canvas) drawAt('air', x, y);
-      else end('air');
+      if (airEnabled && element === canvas) drawAt(x, y);
+      else active = null;
     },
-    endAir() { end('air'); },
+    endAir() { active = null; },
   };
 }
