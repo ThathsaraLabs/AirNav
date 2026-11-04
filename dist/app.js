@@ -58,9 +58,11 @@ function route() {
   const page = Object.hasOwn(pages, requested) ? requested : 'overview';
   $('.workspace').classList.toggle('workspace-studio', page === 'studio');
   $('.workspace').classList.toggle('workspace-tracker', page === 'tracker');
+  $('.workspace').classList.toggle('workspace-guide', page === 'guide');
   drawingStudio.setCameraReady(page === 'studio' && running && Boolean(handLandmarker));
   if (page === 'studio') $('#studio-camera-status').append(cameraFrame, cameraMessage);
   else if (page === 'tracker') $('#tracker-preview').append(cameraFrame, cameraMessage);
+  else if (page === 'guide') $('#guide-preview').append(cameraFrame, cameraMessage);
   else {
     cameraFrameHome.after(cameraFrame);
     cameraMessageHome.after(cameraMessage);
@@ -133,6 +135,10 @@ $('#smoothing').addEventListener('input', event => { smooth = Number(event.targe
 $$('dialog').forEach(dialog => dialog.addEventListener('close', () => { document.body.append(cursor); resetPointer(); }));
 
 document.addEventListener('click', event => {
+  if (event.isTrusted && !event.defaultPrevented && !event.ctrlKey && !event.metaKey &&
+      !event.shiftKey && !event.altKey && event.target.closest('a[href="#guide"]')) {
+    startCamera();
+  }
   const button = event.target.closest('button');
   if (!button) return;
   const action = button.dataset.action;
@@ -296,7 +302,8 @@ function drawHand(hands) {
   }
   const points = hands[0];
   if (!points) return;
-  context.lineWidth = 2; context.strokeStyle = '#dce7b9cc';
+  context.lineWidth = 2;
+  context.strokeStyle = $('#guide').hidden ? '#dce7b9cc' : '#50ffcf';
   for (const [a, b] of links) { context.beginPath(); context.moveTo(points[a].x * canvas.width, points[a].y * canvas.height); context.lineTo(points[b].x * canvas.width, points[b].y * canvas.height); context.stroke(); }
   points.forEach((point, index) => { context.beginPath(); context.fillStyle = index === 8 ? '#f78460' : '#f4f8e4'; context.arc(point.x * canvas.width, point.y * canvas.height, index === 8 ? 7 : 3, 0, Math.PI * 2); context.fill(); });
 }

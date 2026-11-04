@@ -442,3 +442,34 @@ body:has(.workspace-tracker) .topbar,
   .sidebar nav { gap: clamp(2px, 1vw, 5px); }
   .sidebar .nav-link { width: clamp(32px, 10vw, 43px); min-height: 44px; }
 }
+
+.workspace.workspace-guide { grid-template-columns: minmax(0, 1fr); }
+.workspace-guide .control-panel { display: none; }
+
+.guide-live {
+  margin: 16px 0 24px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #f5f2fb;
+}
+
+#guide-preview .camera-frame {
+  aspect-ratio: 16 / 9;
+  max-height: 64vh;
+  border: 0;
+  border-radius: 0;
+  background: #19152a;
+}
+
+#guide-preview .camera-message {
+  padding: 10px 14px;
+  color: var(--ink);
+  font-size: 12px;
+}
+
+#guide-preview .camera-message.error { color: #a32620; }
+
+@media (max-width: 600px) {
+  #guide-preview .camera-frame { aspect-ratio: 4 / 3; }
+}

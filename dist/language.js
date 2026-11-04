@@ -134,12 +134,13 @@ An open invitation|열린 초대
 An arch within an arch. There is always another way through.|아치 안의 또 다른 아치. 언제나 다른 길이 있습니다.
 Where the water goes|물이 흐르는 곳
 A cool blue coast and a quiet shoreline. Let your eyes wander.|시원한 푸른 바다와 고요한 해안선. 시선을 자유롭게 옮겨 보세요.
+Live MediaPipe landmarks|실시간 MediaPipe 손 관절
 MEET YOUR NEW POINTER|새로운 커서 사용법
 A wave to the|손끝으로
 future.|시작하기
 No wearable. No special hardware. Just a webcam and one finger.|웹캠과 손가락 하나면 시작할 수 있습니다.
 Let your camera say hello.|카메라를 켜세요.
-Click Enable camera and allow camera access. The first start downloads the MediaPipe model, so keep an internet connection available. Your live preview appears on the right.|카메라 켜기를 누르고 접근 권한을 허용하세요. 처음 시작할 때 인터넷으로 MediaPipe 모델을 내려받습니다. 미리보기에서 카메라 영상을 확인하세요.
+Click Enable camera and allow camera access. The first start downloads the MediaPipe model, so keep an internet connection available. Your live preview appears above.|카메라 켜기를 누르고 접근 권한을 허용하세요. 처음 시작할 때 인터넷으로 MediaPipe 모델을 내려받습니다. 미리보기에서 카메라 영상을 확인하세요.
 One finger is all it takes.|검지로 커서를 움직이세요.
 Face your palm toward the camera, raise your index finger, and curl the other three fingers. Move your hand to guide the pointer. The preview is mirrored, like looking in a mirror.|손바닥을 카메라 쪽으로 향하게 하고 검지를 편 뒤 나머지 세 손가락을 접으세요. 손을 움직이면 커서가 따라옵니다. 미리보기는 거울처럼 표시됩니다.
 Stay for a second. Go somewhere.|잠시 머물러 클릭하세요.
