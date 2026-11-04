@@ -13,6 +13,12 @@ export function mapPointer(point, width, height, margin = 0.12) {
   return { x: clamp((1 - point.x - margin) / (1 - 2 * margin)) * (width - 1), y: clamp((point.y - margin) / (1 - 2 * margin)) * (height - 1) };
 }
 
+export function isTwoFingerScroll(points) {
+  if (points?.length !== 21) return false;
+  return points[8].y < points[6].y && points[12].y < points[10].y &&
+    points[16].y >= points[14].y && points[20].y >= points[18].y;
+}
+
 export function mapPointerToCanvas(point, rect, viewportWidth, viewportHeight, topInset = 0) {
   const left = Math.max(0, rect.left);
   const top = Math.max(topInset, rect.top);

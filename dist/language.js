@@ -158,6 +158,8 @@ put your hand in control.|손으로 조작할 수 있습니다.
 LIVE PREVIEW|실시간 영상
 Camera access is only requested when you start.|시작할 때 카메라 권한을 요청합니다.
 Tracking status|추적 상태
+Two-finger scroll|두 손가락 스크롤
+Raise your index and middle fingers together and move your hand up or down to scroll.|검지와 중지를 함께 들고 손을 위아래로 움직여 스크롤하세요.
 Waiting for camera|카메라 대기 중
 Point to move. Hold to click.|가리켜 이동하고, 머물러 클릭하세요.
 Raise just your index finger.|검지만 들어 올리세요.

@@ -1,4 +1,4 @@
-import { studioGesture, isIndexPointing, mapPointer, mapPointerToCanvas, smoothDrawingPointer, DwellController } from './gestures.js';
+import { studioGesture, isIndexPointing, isTwoFingerScroll, mapPointer, mapPointerToCanvas, smoothDrawingPointer, DwellController } from './gestures.js';
 import { createDrawingStudio } from './studio.js';
 import { drawNeonHands } from './neon.js';
 
@@ -28,6 +28,7 @@ trackerOverlay.addEventListener('click', () => {
 let handLandmarker, stream, running = false, loading = false, animation;
 let smooth = .3, pointer = null, lastVideoTime = -1, lastInference = 0;
 let lastPointerAt = 0;
+let scrollAnchor = null;
 let drawingInCanvas = false;
 let cameraStarted = 0, totalCameraTime = 0, gestureClicks = 0, frames = 0, fpsTime = 0;
 let cameraGeneration = 0, lastTrackingMessage = '', hoverTarget = null, toastTimeout;
@@ -178,6 +179,7 @@ function updateTracker(count, message = running ? (count ? `Hands: ${count}` : '
 }
 
 function resetPointer() {
+  scrollAnchor = null;
   drawingStudio.endAir();
   cursor.classList.remove('studio-pointer');
   dwell.reset(); pointer = null; cursor.hidden = true;
@@ -345,7 +347,23 @@ function trackFrame(now) {
       const result = handLandmarker.detectForVideo(video, now);
       const points = result.landmarks[0]; drawHand(result.landmarks);
       const inStudio = !$('#studio').hidden;
-      if (!tracker.hidden) {
+      const scrolling = tracker.hidden && !inStudio && !$('dialog[open]') && isTwoFingerScroll(points);
+      if (!scrolling) scrollAnchor = null;
+      if (scrolling) {
+        if (scrollAnchor === null) {
+          resetPointer();
+          scrollAnchor = points[0].y;
+        }
+        // Follow the wrist so small fingertip movements do not scroll the page.
+        const delta = points[0].y - scrollAnchor;
+        const deadZone = .012;
+        if (Math.abs(delta) > deadZone) {
+          scrollAnchor = points[0].y - Math.sign(delta) * deadZone;
+          const pixels = (delta - Math.sign(delta) * deadZone) * innerHeight * 2.6;
+          window.scrollBy({ top: Math.max(-90, Math.min(90, pixels)), behavior: 'instant' });
+        }
+        setTracking('Two-finger scroll', true);
+      } else if (!tracker.hidden) {
         resetPointer();
       } else if (inStudio && points?.length === 21) {
         const mode = studioGesture(points);
