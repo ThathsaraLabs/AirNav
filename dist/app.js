@@ -1,4 +1,4 @@
-import { isIndexPointing, mapPointer, DwellController } from './gestures.js';
+import { isDrawingFingerExtended, isIndexPointing, mapPointer, DwellController } from './gestures.js';
 import { createDrawingStudio } from './studio.js';
 
 const $ = selector => document.querySelector(selector);
@@ -154,6 +154,7 @@ function setTracking(message, active = false) {
 
 function resetPointer() {
   drawingStudio.endAir();
+  cursor.classList.remove('studio-pointer');
   dwell.reset(); pointer = null; cursor.hidden = true;
   if (hoverTarget) hoverTarget.classList.remove('gesture-hover');
   hoverTarget = null; ring.style.strokeDashoffset = 125.664;
@@ -237,17 +238,19 @@ function drawHand(points) {
   points.forEach((point, index) => { context.beginPath(); context.fillStyle = index === 8 ? '#f78460' : '#f4f8e4'; context.arc(point.x * canvas.width, point.y * canvas.height, index === 8 ? 7 : 3, 0, Math.PI * 2); context.fill(); });
 }
 
-function movePointer(point, now) {
+function movePointer(point, now, penDown = true) {
   const mapped = mapPointer(point, innerWidth, innerHeight);
   if (!pointer) pointer = mapped;
   else { pointer.x += (mapped.x - pointer.x) * smooth; pointer.y += (mapped.y - pointer.y) * smooth; }
   cursor.hidden = false;
   cursor.style.left = `${pointer.x}px`; cursor.style.top = `${pointer.y}px`;
   const element = document.elementFromPoint(pointer.x, pointer.y);
-  drawingStudio.moveAir(element, pointer.x, pointer.y);
+  const overCanvas = element?.id === 'studio-canvas';
+  cursor.classList.toggle('studio-pointer', overCanvas);
+  drawingStudio.moveAir(penDown ? element : null, pointer.x, pointer.y);
   const candidate = element?.closest('button:not(:disabled), a[href]');
   const modal = $('dialog[open]');
-  const target = candidate && (!modal || modal.contains(candidate)) ? candidate : null;
+  const target = penDown && candidate && (!modal || modal.contains(candidate)) ? candidate : null;
   if (hoverTarget !== target) { hoverTarget?.classList.remove('gesture-hover'); target?.classList.add('gesture-hover'); hoverTarget = target; }
   const state = dwell.update(target, now);
   ring.style.strokeDashoffset = 125.664 * (1 - state.progress);
@@ -267,12 +270,16 @@ function trackFrame(now) {
       const result = handLandmarker.detectForVideo(video, now);
       const points = result.landmarks[0]; drawHand(points);
       const inStudio = !$('#studio').hidden;
-      if (isIndexPointing(points, { requireOtherFingersCurled: !inStudio })) {
+      if (inStudio && points?.length === 21) {
+        const penDown = isDrawingFingerExtended(result.worldLandmarks?.[0] ?? points);
+        setTracking(penDown ? 'Index finger extended' : 'Pen lifted', true);
+        movePointer(points[8], now, penDown);
+      } else if (isIndexPointing(points)) {
         setTracking('Index finger detected', true);
         movePointer(points[8], now);
       } else {
         resetPointer();
-        setTracking(points ? (inStudio ? 'Extend your index finger' : 'Raise only your index finger') : 'Looking for your hand');
+        setTracking(points ? 'Raise only your index finger' : 'Looking for your hand');
       }
       frames++;
       if (now - fpsTime >= 1000) { $('#fps-label').textContent = `${Math.round(frames * 1000 / (now - fpsTime))} FPS`; frames = 0; fpsTime = now; }

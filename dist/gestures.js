@@ -13,6 +13,16 @@ export function mapPointer(point, width, height, margin = 0.12) {
   return { x: clamp((1 - point.x - margin) / (1 - 2 * margin)) * (width - 1), y: clamp((point.y - margin) / (1 - 2 * margin)) * (height - 1) };
 }
 
+export function isDrawingFingerExtended(points) {
+  if (!points || points.length !== 21) return false;
+  const [base, joint, tip] = [points[5], points[6], points[8]];
+  const first = [joint.x - base.x, joint.y - base.y, (joint.z ?? 0) - (base.z ?? 0)];
+  const second = [tip.x - joint.x, tip.y - joint.y, (tip.z ?? 0) - (joint.z ?? 0)];
+  const lengths = Math.hypot(...first) * Math.hypot(...second);
+  const dot = first.reduce((sum, value, i) => sum + value * second[i], 0);
+  return lengths > 0 && dot / lengths > .6;
+}
+
 export class DwellController {
   constructor(duration = 1100) { this.duration = duration; this.reset(); }
   reset() { this.target = null; this.started = 0; this.activated = false; }

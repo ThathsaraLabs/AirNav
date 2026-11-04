@@ -221,6 +221,16 @@
 
 #studio-canvas.air-ink { box-shadow: inset 0 0 0 2px #6742b2; }
 
+#gesture-cursor.studio-pointer {
+  width: 36px;
+  height: 36px;
+}
+
+#gesture-cursor.studio-pointer > span {
+  width: 8px;
+  height: 8px;
+}
+
 #studio-help {
   margin: 14px 0 0;
   color: var(--muted);
