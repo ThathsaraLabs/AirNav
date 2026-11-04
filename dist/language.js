@@ -259,8 +259,11 @@ function translate(text) {
 
 const originals = new WeakMap();
 const attributes = ['aria-label', 'alt', 'title'];
-let language = 'en';
-try { if (localStorage.getItem('airnav-language') === 'ko') language = 'ko'; } catch {}
+let language = 'ko';
+try {
+  const savedLanguage = localStorage.getItem('airnav-language');
+  if (savedLanguage === 'en' || savedLanguage === 'ko') language = savedLanguage;
+} catch { /* Storage can be unavailable in restricted browsers. */ }
 
 function update(node, key, current, write) {
   let fields = originals.get(node);
