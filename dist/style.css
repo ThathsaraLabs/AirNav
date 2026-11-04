@@ -135,6 +135,20 @@
   box-shadow: 0 12px 30px #23213b0c;
 }
 
+.workspace.workspace-studio {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.workspace-studio .control-panel,
+.workspace-studio .main-footer {
+  display: none;
+}
+
+.workspace-studio #studio {
+  max-width: 1040px;
+  margin: 0 auto 24px;
+}
+
 .studio-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -202,8 +216,6 @@
   width: 100%;
   height: auto;
   background-color: #fff;
-  background-image: radial-gradient(#ded8eb 1px, transparent 1px);
-  background-size: 16px 16px;
   box-shadow: inset 0 0 0 1px #dad7e6;
   cursor: crosshair;
   touch-action: none;

@@ -76,7 +76,10 @@
                 <button type="button" data-studio-color="#a66b0a" style="--swatch:#a66b0a" aria-label="Amber" aria-pressed="false"></button>
                 <label class="studio-custom">Custom <input type="color" id="studio-color" value="#23213b" aria-label="Custom ink color"></label>
               </div>
-              <button type="button" id="studio-air" aria-pressed="false">Air ink off</button>
+              <div class="studio-group">
+                <button type="button" data-action="start">Enable camera</button>
+                <button type="button" id="studio-air" aria-pressed="false">Air ink off</button>
+              </div>
             </div>
             <canvas id="studio-canvas" width="1280" height="800" aria-label="Drawing canvas" aria-describedby="studio-help"></canvas>
             <div class="studio-toolbar studio-actions">
@@ -89,6 +92,7 @@
             </div>
           </div>
           <p id="studio-help">To draw in the air, enable the camera and dwell on <strong>Air ink off</strong> to turn it on. Move your index finger over the canvas to draw. Curl it to lift the pen.</p>
+          <div id="studio-camera-status"></div>
         </section>
         <section class="page" id="overview" aria-label="Overview">
           <div class="page-heading"><div><div class="eyebrow">LESS TOUCH. MORE POSSIBILITY.</div><h1>Your next move<br>starts with a finger<span>.</span></h1><p>A new way to explore the web. Point, hover, and go.<br>No mouse. Just you.</p></div><span class="edition">THE GESTURE<br>EXPERIMENT <span>↗</span></span></div>

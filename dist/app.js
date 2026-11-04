@@ -10,6 +10,9 @@ const cursor = $('#gesture-cursor');
 const ring = $('#dwell-ring');
 const dwell = new DwellController();
 const drawingStudio = createDrawingStudio();
+const cameraMessage = $('#camera-message');
+const cameraMessageHome = document.createComment('Camera status position');
+cameraMessage.before(cameraMessageHome);
 let handLandmarker, stream, running = false, loading = false, animation;
 let smooth = .3, pointer = null, lastVideoTime = -1, lastInference = 0;
 let cameraStarted = 0, totalCameraTime = 0, gestureClicks = 0, frames = 0, fpsTime = 0;
@@ -37,6 +40,9 @@ try {
 function route() {
   const requested = location.hash.slice(1);
   const page = Object.hasOwn(pages, requested) ? requested : 'overview';
+  $('.workspace').classList.toggle('workspace-studio', page === 'studio');
+  if (page === 'studio') $('#studio-camera-status').append(cameraMessage);
+  else cameraMessageHome.after(cameraMessage);
   $$('.page').forEach(section => { section.hidden = section.id !== page; });
   $$('.nav-link').forEach(link => {
     const active = link.dataset.page === page;
