@@ -1,4 +1,4 @@
-import { isDrawingFingerExtended, isIndexPointing, mapPointer, smoothDrawingPointer, DwellController } from './gestures.js';
+import { isDrawingFingerExtended, isIndexPointing, mapPointer, mapPointerToCanvas, smoothDrawingPointer, DwellController } from './gestures.js';
 import { createDrawingStudio } from './studio.js';
 
 const $ = selector => document.querySelector(selector);
@@ -19,6 +19,7 @@ cameraFrame.before(cameraFrameHome);
 let handLandmarker, stream, running = false, loading = false, animation;
 let smooth = .3, pointer = null, lastVideoTime = -1, lastInference = 0;
 let lastPointerAt = 0;
+let drawingInCanvas = false;
 let cameraStarted = 0, totalCameraTime = 0, gestureClicks = 0, frames = 0, fpsTime = 0;
 let cameraGeneration = 0, lastTrackingMessage = '', hoverTarget = null, toastTimeout;
 let practiceHits = 0;
@@ -247,7 +248,18 @@ function drawHand(points) {
 
 function movePointer(point, now, penDown = false) {
   const inStudio = !$('#studio').hidden;
-  const mapped = mapPointer(point, innerWidth, innerHeight, inStudio ? .23 : .12);
+  const useCanvas = inStudio && penDown && !$('dialog[open]');
+  if (useCanvas !== drawingInCanvas) pointer = null;
+  drawingInCanvas = useCanvas;
+  let mapped = mapPointer(point, innerWidth, innerHeight, inStudio ? .23 : .12);
+  if (useCanvas) {
+    const sidebar = $('.sidebar');
+    const topInset = getComputedStyle(sidebar).position === 'sticky'
+      ? sidebar.getBoundingClientRect().bottom
+      : $('.developer-credit').getBoundingClientRect().bottom;
+    mapped = mapPointerToCanvas(point, $('#studio-canvas').getBoundingClientRect(), innerWidth, innerHeight, topInset);
+    if (!mapped) { resetPointer(); return; }
+  }
   if (inStudio) pointer = smoothDrawingPointer(pointer, mapped, now - lastPointerAt, smooth);
   else if (!pointer) pointer = mapped;
   else { pointer.x += (mapped.x - pointer.x) * smooth; pointer.y += (mapped.y - pointer.y) * smooth; }
@@ -311,4 +323,4 @@ document.addEventListener('visibilitychange', () => {
 });
 window.addEventListener('pagehide', () => { stream?.getTracks().forEach(track => track.stop()); });
 window.addEventListener('resize', resetPointer);
-window.addEventListener('scroll', () => { drawingStudio.endAir(); dwell.reset(); hoverTarget?.classList.remove('gesture-hover'); hoverTarget = null; ring.style.strokeDashoffset = 125.664; }, { passive: true });
+window.addEventListener('scroll', () => { drawingStudio.endAir(); if (drawingInCanvas) pointer = null; dwell.reset(); hoverTarget?.classList.remove('gesture-hover'); hoverTarget = null; ring.style.strokeDashoffset = 125.664; }, { passive: true });

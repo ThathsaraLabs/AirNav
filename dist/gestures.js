@@ -13,6 +13,16 @@ export function mapPointer(point, width, height, margin = 0.12) {
   return { x: clamp((1 - point.x - margin) / (1 - 2 * margin)) * (width - 1), y: clamp((point.y - margin) / (1 - 2 * margin)) * (height - 1) };
 }
 
+export function mapPointerToCanvas(point, rect, viewportWidth, viewportHeight, topInset = 0) {
+  const left = Math.max(0, rect.left);
+  const top = Math.max(topInset, rect.top);
+  const right = Math.min(viewportWidth, rect.right);
+  const bottom = Math.min(viewportHeight, rect.bottom);
+  if (right - left < 3 || bottom - top < 3) return null;
+  const local = mapPointer(point, right - left - 1, bottom - top - 1, .23);
+  return { x: left + 1 + local.x, y: top + 1 + local.y };
+}
+
 export function isDrawingFingerExtended(points) {
   if (!points || points.length !== 21) return false;
   const [base, joint, tip] = [points[5], points[6], points[8]];
