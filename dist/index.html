@@ -33,6 +33,7 @@
       <a href="#overview" class="nav-link" data-page="overview"><svg><use href="#i-grid"/></svg>Overview<span class="nav-dot"></span></a>
       <a href="#playground" class="nav-link" data-page="playground"><svg><use href="#i-cursor"/></svg>Playground<span class="mini-tag">TRY IT</span></a>
       <a href="#studio" class="nav-link" data-page="studio" aria-label="Drawing Studio"><svg viewBox="0 0 24 24"><path d="m4 16 12-12 4 4L8 20l-5 1zM13 7l4 4"/></svg>Studio</a>
+      <a href="#tracker" class="nav-link" data-page="tracker" aria-label="Hand Tracker"><svg><use href="#i-hand"/></svg>Hand Tracker</a>
       <a href="#gallery" class="nav-link" data-page="gallery"><svg><use href="#i-image"/></svg>Gallery</a>
       <a href="#guide" class="nav-link" data-page="guide"><svg><use href="#i-book"/></svg>How it works</a>
     </nav>
@@ -49,6 +50,25 @@
     </header>
     <div class="workspace">
       <main id="main-content" tabindex="-1">
+        <section class="page" id="tracker" hidden aria-labelledby="tracker-title">
+          <div class="eyebrow">LIVE COMPUTER VISION</div>
+          <h1 id="tracker-title">Hand <span>Tracker.</span></h1>
+          <p class="page-description">See how MediaPipe follows your hand, from the wrist to each fingertip.</p>
+          <div class="tracker-board">
+            <div class="studio-toolbar tracker-toolbar">
+              <div class="tracker-readout">
+                <strong id="tracker-hand" role="status">Camera off</strong>
+                <span id="tracker-landmarks">0 / 21 landmarks</span>
+              </div>
+              <div class="studio-group">
+                <button type="button" id="tracker-overlay" aria-pressed="true">Landmark overlay</button>
+                <button type="button" data-action="start">Enable camera</button>
+              </div>
+            </div>
+            <div id="tracker-preview"></div>
+          </div>
+          <p class="tracker-tip">Keep one hand fully visible in the frame. Open your palm or bend a finger to see the joints move. The highlighted point marks your index fingertip.</p>
+        </section>
         <section class="page" id="studio" hidden aria-labelledby="studio-title">
           <div class="eyebrow">AIRNAV CREATIVE WORKSPACE</div>
           <h1 id="studio-title">Drawing <span>Studio.</span></h1>

@@ -16,6 +16,14 @@ cameraMessage.before(cameraMessageHome);
 const cameraFrame = video.closest('.camera-frame');
 const cameraFrameHome = document.createComment('Camera preview position');
 cameraFrame.before(cameraFrameHome);
+const tracker = $('#tracker');
+const trackerOverlay = $('#tracker-overlay');
+const trackerHand = $('#tracker-hand');
+const trackerLandmarks = $('#tracker-landmarks');
+trackerOverlay.addEventListener('click', () => {
+  const visible = trackerOverlay.getAttribute('aria-pressed') === 'true';
+  trackerOverlay.setAttribute('aria-pressed', String(!visible));
+});
 let handLandmarker, stream, running = false, loading = false, animation;
 let smooth = .3, pointer = null, lastVideoTime = -1, lastInference = 0;
 let lastPointerAt = 0;
@@ -25,7 +33,7 @@ let cameraGeneration = 0, lastTrackingMessage = '', hoverTarget = null, toastTim
 let practiceHits = 0;
 const hitTargets = new Set();
 const links = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[0,17],[17,18],[18,19],[19,20]];
-const pages = { overview: 'Overview', playground: 'Playground', studio: 'Drawing Studio', gallery: 'Gallery', guide: 'How it works' };
+const pages = { overview: 'Overview', playground: 'Playground', studio: 'Drawing Studio', tracker: 'Hand Tracker', gallery: 'Gallery', guide: 'How it works' };
 const artworks = [
   { title: 'A softer kind of bold', type: 'shapes', className: 'art-one', description: 'Warm terracotta and soft sand. A study in simple forms sharing the same space.' },
   { title: 'Somewhere slower', type: 'landscapes', className: 'art-two', description: 'Rolling green hills beneath a pale sun. A reminder to take your time.' },
@@ -46,8 +54,10 @@ function route() {
   const requested = location.hash.slice(1);
   const page = Object.hasOwn(pages, requested) ? requested : 'overview';
   $('.workspace').classList.toggle('workspace-studio', page === 'studio');
+  $('.workspace').classList.toggle('workspace-tracker', page === 'tracker');
   drawingStudio.setCameraReady(page === 'studio' && running);
   if (page === 'studio') $('#studio-camera-status').append(cameraFrame, cameraMessage);
+  else if (page === 'tracker') $('#tracker-preview').append(cameraFrame, cameraMessage);
   else {
     cameraFrameHome.after(cameraFrame);
     cameraMessageHome.after(cameraMessage);
@@ -160,6 +170,12 @@ function setTracking(message, active = false) {
   status.append(dot, message);
 }
 
+function updateTracker(count, message = running ? (count ? 'Hand detected' : 'Show your hand') : 'Camera off') {
+  if (trackerHand.textContent !== message) trackerHand.textContent = message;
+  const landmarks = `${count} / 21 landmarks`;
+  if (trackerLandmarks.textContent !== landmarks) trackerLandmarks.textContent = landmarks;
+}
+
 function resetPointer() {
   drawingStudio.endAir();
   cursor.classList.remove('studio-pointer');
@@ -179,6 +195,7 @@ async function createTracker() {
 async function startCamera() {
   if (loading || running) return;
   loading = true;
+  updateTracker(0, 'Starting camera');
   const generation = ++cameraGeneration;
   const buttons = $$('[data-action="start"]');
   buttons.forEach(button => { button.disabled = true; });
@@ -217,6 +234,7 @@ async function startCamera() {
     message.textContent = errors[error.name] || error.message || 'Tracking could not start. Check your internet connection and try again.';
     message.classList.add('error');
     setTracking('Camera unavailable');
+    updateTracker(0, 'Camera unavailable');
     addActivity('Camera could not start', 'Check the message above');
   } finally { loading = false; buttons.forEach(button => { button.disabled = false; }); }
 }
@@ -225,6 +243,7 @@ function stopCamera() {
   cameraGeneration++;
   if (running) totalCameraTime += performance.now() - cameraStarted;
   running = false; cancelAnimationFrame(animation);
+  updateTracker(0);
   drawingStudio.setCameraReady(false);
   stream?.getTracks().forEach(track => track.stop()); stream = null;
   video.srcObject = null; context.clearRect(0, 0, canvas.width, canvas.height);
@@ -240,8 +259,12 @@ function stopCamera() {
 
 function drawHand(points) {
   context.clearRect(0, 0, canvas.width, canvas.height);
+  if (!tracker.hidden) {
+    updateTracker(points?.length ?? 0);
+    if (trackerOverlay.getAttribute('aria-pressed') === 'false') return;
+  }
   if (!points) return;
-  context.lineWidth = 2; context.strokeStyle = '#dce7b9cc';
+  context.lineWidth = 2; context.strokeStyle = tracker.hidden ? '#dce7b9cc' : '#50ffcf';
   for (const [a, b] of links) { context.beginPath(); context.moveTo(points[a].x * canvas.width, points[a].y * canvas.height); context.lineTo(points[b].x * canvas.width, points[b].y * canvas.height); context.stroke(); }
   points.forEach((point, index) => { context.beginPath(); context.fillStyle = index === 8 ? '#f78460' : '#f4f8e4'; context.arc(point.x * canvas.width, point.y * canvas.height, index === 8 ? 7 : 3, 0, Math.PI * 2); context.fill(); });
 }
@@ -306,7 +329,14 @@ function trackFrame(now) {
       }
       frames++;
       if (now - fpsTime >= 1000) { $('#fps-label').textContent = `${Math.round(frames * 1000 / (now - fpsTime))} FPS`; frames = 0; fpsTime = now; }
-    } else if (now - lastInference > 500) { resetPointer(); setTracking('Waiting for camera frames'); }
+    } else if (now - lastInference > 500) {
+      resetPointer();
+      setTracking('Waiting for camera frames');
+      if (!tracker.hidden) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        updateTracker(0, 'Waiting for camera frames');
+      }
+    }
   } catch (error) {
     stopCamera(); $('#camera-message').textContent = `Tracking interrupted. Try enabling the camera again. ${error.message}`; $('#camera-message').classList.add('error');
   }

@@ -255,3 +255,47 @@
   .sidebar .nav-link { width: 36px; }
   .sidebar nav { gap: 3px; }
 }
+
+.workspace.workspace-tracker {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.workspace-tracker .control-panel { display: none; }
+
+#tracker {
+  max-width: 1040px;
+  margin-inline: auto;
+}
+
+.tracker-board {
+  overflow: hidden;
+  border: 1px solid #dad7e6;
+  border-radius: 16px;
+  background: #f5f2fb;
+}
+
+.tracker-readout {
+  display: grid;
+  gap: 4px;
+  color: var(--ink);
+}
+
+.tracker-readout span, .tracker-tip {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+#tracker-preview .camera-frame {
+  aspect-ratio: 16 / 10;
+  max-height: 65vh;
+  border: 0;
+  border-radius: 0;
+  background: #19152a;
+}
+
+#tracker-preview .camera-message { padding: 10px 14px; }
+.tracker-tip { margin-top: 14px; line-height: 1.55; }
+
+@media (max-width: 380px) {
+  .sidebar .nav-link { width: 34px; }
+}
