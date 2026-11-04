@@ -1,4 +1,4 @@
-import { studioGesture, isIndexPointing, isTwoFingerScroll, mapPointer, mapPointerToCanvas, smoothDrawingPointer, DwellController } from './gestures.js';
+import { studioGesture, isIndexPointing, isTwoFingerScroll, nearestHand, mapPointer, mapPointerToCanvas, smoothDrawingPointer, ScrollMotion, DwellController } from './gestures.js';
 import { createDrawingStudio } from './studio.js';
 import { drawNeonHands } from './neon.js';
 
@@ -28,7 +28,8 @@ trackerOverlay.addEventListener('click', () => {
 let handLandmarker, stream, running = false, loading = false, animation;
 let smooth = .3, pointer = null, lastVideoTime = -1, lastInference = 0;
 let lastPointerAt = 0;
-let scrollAnchor = null;
+const scrollMotion = new ScrollMotion();
+let activeWrist;
 let drawingInCanvas = false;
 let cameraStarted = 0, totalCameraTime = 0, gestureClicks = 0, frames = 0, fpsTime = 0;
 let cameraGeneration = 0, lastTrackingMessage = '', hoverTarget = null, toastTimeout;
@@ -179,7 +180,7 @@ function updateTracker(count, message = running ? (count ? `Hands: ${count}` : '
 }
 
 function resetPointer() {
-  scrollAnchor = null;
+  scrollMotion.reset();
   drawingStudio.endAir();
   cursor.classList.remove('studio-pointer');
   dwell.reset(); pointer = null; cursor.hidden = true;
@@ -315,9 +316,7 @@ function movePointer(point, now, mode = 'select') {
     mapped = mapPointerToCanvas(point, $('#studio-canvas').getBoundingClientRect(), innerWidth, innerHeight, topInset);
     if (!mapped) { resetPointer(); return; }
   }
-  if (inStudio) pointer = smoothDrawingPointer(pointer, mapped, now - lastPointerAt, smooth);
-  else if (!pointer) pointer = mapped;
-  else { pointer.x += (mapped.x - pointer.x) * smooth; pointer.y += (mapped.y - pointer.y) * smooth; }
+  pointer = smoothDrawingPointer(pointer, mapped, now - lastPointerAt, smooth);
   lastPointerAt = now;
   cursor.hidden = false;
   cursor.style.left = `${pointer.x}px`; cursor.style.top = `${pointer.y}px`;
@@ -345,23 +344,21 @@ function trackFrame(now) {
     if (video.readyState >= 2 && video.currentTime !== lastVideoTime && now - lastInference >= 33) {
       lastVideoTime = video.currentTime; lastInference = now;
       const result = handLandmarker.detectForVideo(video, now);
-      const points = result.landmarks[0]; drawHand(result.landmarks);
+      const hands = result.landmarks;
+      let points = nearestHand(hands, activeWrist);
+      if (!points) {
+        resetPointer();
+        points = hands[0];
+      }
+      activeWrist = points?.[0];
+      drawHand(hands);
       const inStudio = !$('#studio').hidden;
-      const scrolling = tracker.hidden && !inStudio && !$('dialog[open]') && isTwoFingerScroll(points);
-      if (!scrolling) scrollAnchor = null;
+      const scrolling = tracker.hidden && !inStudio && !$('dialog[open]') && isTwoFingerScroll(points, scrollMotion.active);
+      if (!scrolling) scrollMotion.reset();
       if (scrolling) {
-        if (scrollAnchor === null) {
-          resetPointer();
-          scrollAnchor = points[0].y;
-        }
-        // Follow the wrist so small fingertip movements do not scroll the page.
-        const delta = points[0].y - scrollAnchor;
-        const deadZone = .012;
-        if (Math.abs(delta) > deadZone) {
-          scrollAnchor = points[0].y - Math.sign(delta) * deadZone;
-          const pixels = (delta - Math.sign(delta) * deadZone) * innerHeight * 2.6;
-          window.scrollBy({ top: Math.max(-90, Math.min(90, pixels)), behavior: 'instant' });
-        }
+        if (!scrollMotion.active) resetPointer();
+        const pixels = scrollMotion.update((points[5].y + points[17].y) / 2, innerHeight);
+        if (pixels) window.scrollBy({ top: pixels, behavior: 'instant' });
         setTracking('Two-finger scroll', true);
       } else if (!tracker.hidden) {
         resetPointer();

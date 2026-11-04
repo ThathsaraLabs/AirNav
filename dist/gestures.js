@@ -2,7 +2,7 @@
 export function isIndexPointing(points, { requireOtherFingersCurled = true } = {}) {
   if (!points || points.length !== 21) return false;
   const distance = (a, b) => Math.hypot(points[a].x - points[b].x, points[a].y - points[b].y);
-  const indexExtended = distance(8, 0) > distance(6, 0) * 1.13 && distance(8, 5) > distance(6, 5) * 1.35;
+  const indexExtended = distance(8, 0) > distance(6, 0) * 1.08 && distance(8, 5) > distance(6, 5) * 1.22;
   if (!requireOtherFingersCurled) return indexExtended;
   const othersCurled = [[12, 10], [16, 14], [20, 18]].every(([tip, pip]) => distance(tip, 0) < distance(pip, 0) * 1.12);
   return indexExtended && othersCurled;
@@ -13,10 +13,45 @@ export function mapPointer(point, width, height, margin = 0.12) {
   return { x: clamp((1 - point.x - margin) / (1 - 2 * margin)) * (width - 1), y: clamp((point.y - margin) / (1 - 2 * margin)) * (height - 1) };
 }
 
-export function isTwoFingerScroll(points) {
+export function isTwoFingerScroll(points, active = false) {
   if (points?.length !== 21) return false;
-  return points[8].y < points[6].y && points[12].y < points[10].y &&
-    points[16].y >= points[14].y && points[20].y >= points[18].y;
+  const reach = index => Math.hypot(points[index].x - points[0].x, points[index].y - points[0].y);
+  const extended = (tip, joint, ratio) => reach(tip) > reach(joint) * ratio;
+  const threshold = active ? 1.035 : 1.08;
+  return extended(8, 6, threshold) && extended(12, 10, threshold) &&
+    !extended(16, 14, 1.14) && !extended(20, 18, 1.14);
+}
+
+export function nearestHand(hands, wrist) {
+  if (!wrist || !hands.length) return hands[0];
+  const distance = hand => Math.hypot(hand[0].x - wrist.x, hand[0].y - wrist.y);
+  const closest = hands.reduce((best, hand) => distance(hand) < distance(best) ? hand : best);
+  return distance(closest) < .18 ? closest : undefined;
+}
+
+// Start each gesture at its current position, then scroll from filtered movement.
+export class ScrollMotion {
+  get active() { return this.anchor != null; }
+
+  reset() {
+    this.anchor = null;
+    this.filtered = null;
+  }
+
+  update(y, viewportHeight) {
+    if (!this.active) {
+      this.anchor = this.filtered = y;
+      return 0;
+    }
+    this.filtered += (y - this.filtered) * .55;
+    const displacement = this.filtered - this.anchor;
+    const deadZone = .004;
+    if (Math.abs(displacement) <= deadZone) return 0;
+    const movement = displacement - Math.sign(displacement) * deadZone;
+    const pixels = Math.max(-90, Math.min(90, Math.round(movement * viewportHeight * 3.2)));
+    if (pixels) this.anchor = this.filtered - Math.sign(displacement) * deadZone;
+    return pixels;
+  }
 }
 
 export function mapPointerToCanvas(point, rect, viewportWidth, viewportHeight, topInset = 0) {

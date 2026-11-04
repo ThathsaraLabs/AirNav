@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DwellController, mapPointer, isIndexPointing } from '../dist/gestures.js';
+import { DwellController, ScrollMotion, mapPointer, isIndexPointing, isTwoFingerScroll, nearestHand } from '../dist/gestures.js';
 
 test('dwell activates once, releases on exit, and starts over on a new target', () => {
   const dwell = new DwellController(1000);
@@ -38,4 +38,30 @@ test('index-only pose is accepted, open hand and curled index are rejected', () 
   points[8] = { x: .45, y: .7 };
   assert.equal(isIndexPointing(points), false);
   assert.equal(isIndexPointing(null), false);
+});
+
+test('two-finger scrolling recognizes a sideways hand and rejects an open palm', () => {
+  const hand = Array.from({ length: 21 }, () => ({ x: .3, y: .5 }));
+  hand[8].x = hand[12].x = .65;
+  hand[6].x = hand[10].x = .5;
+  assert.equal(isTwoFingerScroll(hand), true);
+  hand[16].x = .65;
+  assert.equal(isTwoFingerScroll(hand), false);
+});
+
+test('scroll ignores initial pose and jitter, responds in both directions, and resets', () => {
+  const scroll = new ScrollMotion();
+  assert.equal(scroll.update(.5, 800), 0);
+  assert.equal(scroll.update(.502, 800), 0);
+  assert.ok(scroll.update(.54, 800) > 0);
+  assert.ok(scroll.update(.47, 800) < 0);
+  scroll.reset();
+  assert.equal(scroll.update(.85, 800), 0);
+});
+
+test('the controlling hand survives landmark list reordering', () => {
+  const left = [{ x: .2, y: .6 }];
+  const right = [{ x: .8, y: .6 }];
+  assert.equal(nearestHand([right, left], { x: .22, y: .59 }), left);
+  assert.equal(nearestHand([right], left[0]), undefined);
 });
