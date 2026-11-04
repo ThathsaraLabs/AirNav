@@ -134,7 +134,10 @@ An open invitation|열린 초대
 An arch within an arch. There is always another way through.|아치 안의 또 다른 아치. 언제나 다른 길이 있습니다.
 Where the water goes|물이 흐르는 곳
 A cool blue coast and a quiet shoreline. Let your eyes wander.|시원한 푸른 바다와 고요한 해안선. 시선을 자유롭게 옮겨 보세요.
-Live MediaPipe landmarks|실시간 MediaPipe 손 관절
+Live MediaPipe landmarks|실시간 MediaPipe 랜드마크
+Cyan shows the face mesh, including eyes, lips and irises. Gold shows visible body joints, including shoulders, elbows and wrists. Step back to see hips, knees and feet.|하늘색은 눈, 입술, 홍채를 포함한 얼굴 메시입니다. 금색은 어깨, 팔꿈치, 손목 등 화면에 보이는 신체 관절입니다. 뒤로 물러나면 엉덩이, 무릎, 발도 볼 수 있습니다.
+Loading face and pose models…|얼굴 및 자세 모델을 불러오는 중…
+A face or pose model is unavailable. Restart the camera to retry.|얼굴 또는 자세 모델을 사용할 수 없습니다. 카메라를 다시 켜서 시도하세요.
 Show both hands. Each hand has 21 points numbered 0–20. Point 0 is the wrist. Fingertips are 4, 8, 12, 16 and 20.|두 손을 보여 주세요. 손마다 0번부터 20번까지 21개 점이 표시됩니다. 0번은 손목이며, 4번, 8번, 12번, 16번, 20번은 손끝입니다.
 MEET YOUR NEW POINTER|새로운 커서 사용법
 A wave to the|손끝으로
@@ -242,6 +245,8 @@ function translate(text) {
     [/^Practice (\d+)$/, '연습 $1'],
     [/^(\d+ \/ \d+) landmarks$/, '관절 $1'],
     [/^Hands: (\d+)$/, '손 $1개 감지'],
+    [/^Face points: (\d+)$/, '얼굴 점 $1개'],
+    [/^Pose points: (\d+)$/, '자세 점 $1개'],
     [/^([\d.]+) seconds$/, '$1초'],
   ];
   for (const [pattern, replacement] of patterns) {

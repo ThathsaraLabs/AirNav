@@ -454,6 +454,28 @@ body:has(.workspace-tracker) .topbar,
   background: #f5f2fb;
 }
 
+.guide-live .studio-toolbar { justify-content: space-between; }
+
+.guide-counters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 14px 12px;
+}
+
+.guide-counters span {
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: #231d35;
+  color: #6ceaff;
+  font-size: 12px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+#guide-pose-count { color: #ffce67; }
+#guide-hand-count { color: #50ffcf; }
+
 #guide-preview .camera-frame {
   aspect-ratio: 16 / 9;
   max-height: 64vh;

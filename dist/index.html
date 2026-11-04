@@ -182,10 +182,16 @@
         <section class="page" id="guide" hidden aria-label="How it works"><div class="eyebrow">MEET YOUR NEW POINTER</div><h1>A wave to the <span>future.</span></h1><p class="page-description">No wearable. No special hardware. Just a webcam and one finger.</p><div class="guide-live">
             <div class="studio-toolbar">
               <strong>Live MediaPipe landmarks</strong>
-              <span id="guide-hand-count" role="status" data-count="0">Hands: 0</span>
               <button type="button" data-action="start">Enable camera</button>
             </div>
+            <div class="guide-counters">
+              <span id="guide-face-count" data-count="0">Face points: 0</span>
+              <span id="guide-pose-count" data-count="0">Pose points: 0</span>
+              <span id="guide-hand-count" data-count="0">Hands: 0</span>
+            </div>
             <div id="guide-preview"></div>
+            <p class="guide-landmark-key" id="guide-model-status" role="status" hidden></p>
+            <p class="guide-landmark-key">Cyan shows the face mesh, including eyes, lips and irises. Gold shows visible body joints, including shoulders, elbows and wrists. Step back to see hips, knees and feet.</p>
             <p class="guide-landmark-key">Show both hands. Each hand has 21 points numbered 0–20. Point 0 is the wrist. Fingertips are 4, 8, 12, 16 and 20.</p>
           </div>
           <div class="guide-steps"><article><span class="step-number">01</span><div><h2>Let your camera say hello.</h2><p>Click Enable camera and allow camera access. The first start downloads the MediaPipe model, so keep an internet connection available. Your live preview appears above.</p><button class="dark-button" data-action="start">Enable camera <svg><use href="#i-camera"/></svg></button></div></article><article><span class="step-number">02</span><div><h2>One finger is all it takes.</h2><p>Face your palm toward the camera, raise your index finger, and curl the other three fingers. Move your hand to guide the pointer. The preview is mirrored, like looking in a mirror.</p></div></article><article><span class="step-number">03</span><div><h2>Stay for a second. Go somewhere.</h2><p>Hold the pointer over a button or page link. When its ring fills, it activates. Move off the button to click it again. Curl your index finger or take your hand out of view to release the pointer.</p><a class="text-button" href="#playground">Give it a try <svg><use href="#i-arrow"/></svg></a></div></article></div><div class="note-card"><strong>A few things for a smoother demo</strong><p>Use even lighting, keep your whole hand in frame, and position yourself about an arm's length from the camera. Adjust hold time and smoothing in Preferences. Page links stay inside this demo; browser tabs and other applications are outside its control.</p></div></section>

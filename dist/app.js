@@ -1,6 +1,7 @@
 import { studioGesture, isIndexPointing, isTwoFingerScroll, nearestHand, mapPointer, mapPointerToCanvas, smoothDrawingPointer, ScrollMotion, DwellController } from './gestures.js';
 import { createDrawingStudio } from './studio.js';
 import { drawNeonHands } from './neon.js';
+import { createGuideLandmarks, createVideoLandmarker, loadVision } from './guide-landmarks.js';
 
 const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
@@ -21,6 +22,8 @@ const tracker = $('#tracker');
 const trackerOverlay = $('#tracker-overlay');
 const trackerHand = $('#tracker-hand');
 const trackerLandmarks = $('#tracker-landmarks');
+const guide = $('#guide');
+const guideLandmarks = createGuideLandmarks($('#guide-face-count'), $('#guide-pose-count'), $('#guide-model-status'));
 trackerOverlay.addEventListener('click', () => {
   const visible = trackerOverlay.getAttribute('aria-pressed') === 'true';
   trackerOverlay.setAttribute('aria-pressed', String(!visible));
@@ -56,6 +59,7 @@ try {
 function route() {
   const requested = location.hash.slice(1);
   const page = Object.hasOwn(pages, requested) ? requested : 'overview';
+  if (page !== 'guide') guideLandmarks.clear();
   $('.workspace').classList.toggle('workspace-studio', page === 'studio');
   $('.workspace').classList.toggle('workspace-tracker', page === 'tracker');
   $('.workspace').classList.toggle('workspace-guide', page === 'guide');
@@ -195,21 +199,10 @@ function resetPointer() {
 }
 
 async function createTracker() {
-  const { FilesetResolver, HandLandmarker } = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.32/vision_bundle.mjs');
-  const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.32/wasm');
-  const options = {
-    baseOptions: {
-      modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
-      delegate: 'GPU',
-    },
-    runningMode: 'VIDEO',
-    numHands: 2,
-    minHandDetectionConfidence: .5,
-    minHandPresenceConfidence: .5,
-    minTrackingConfidence: .5,
-  };
-  try { return await HandLandmarker.createFromOptions(vision, options); }
-  catch { options.baseOptions.delegate = 'CPU'; return await HandLandmarker.createFromOptions(vision, options); }
+  const { tasks, vision } = await loadVision();
+  return createVideoLandmarker(tasks.HandLandmarker, vision,
+    'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
+    { numHands: 2, minHandDetectionConfidence: .5, minHandPresenceConfidence: .5, minTrackingConfidence: .5 });
 }
 
 async function startCamera() {
@@ -250,6 +243,7 @@ async function startCamera() {
         setTracking('Hand tracking unavailable');
         message.textContent = 'Camera is live. The hand tracking model could not load. Check your connection, then stop and restart the camera to retry.';
         message.classList.add('error');
+        animation = requestAnimationFrame(trackFrame);
         return;
       }
     }
@@ -277,6 +271,7 @@ function stopCamera() {
   cameraGeneration++;
   if (running) totalCameraTime += performance.now() - cameraStarted;
   running = false; cancelAnimationFrame(animation);
+  guideLandmarks.clear(true);
   updateTracker(0);
   drawingStudio.setCameraReady(false);
   stream?.getTracks().forEach(track => track.stop()); stream = null;
@@ -303,8 +298,9 @@ function drawHand(hands) {
     }
     return;
   }
-  const teaching = !$('#guide').hidden;
+  const teaching = !guide.hidden;
   if (teaching) {
+    guideLandmarks.draw(context, canvas.width, canvas.height);
     const count = $('#guide-hand-count');
     if (count.dataset.count !== String(hands.length)) {
       count.dataset.count = String(hands.length);
@@ -389,8 +385,13 @@ function trackFrame(now) {
   try {
     if (video.readyState >= 2 && video.currentTime !== lastVideoTime && now - lastInference >= 33) {
       lastVideoTime = video.currentTime; lastInference = now;
-      const result = handLandmarker.detectForVideo(video, now);
-      const hands = result.landmarks;
+      if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        guideLandmarks.clear();
+      }
+      if (!guide.hidden) guideLandmarks.update(video, now);
+      const hands = handLandmarker?.detectForVideo(video, now).landmarks ?? [];
       let points = nearestHand(hands, activeWrist);
       if (!points) {
         resetPointer();
@@ -406,7 +407,7 @@ function trackFrame(now) {
         const pixels = scrollMotion.update((points[5].y + points[17].y) / 2, innerHeight);
         if (pixels) window.scrollBy({ top: pixels, behavior: 'instant' });
         setTracking('Two-finger scroll', true);
-      } else if (!tracker.hidden) {
+      } else if (!tracker.hidden || !handLandmarker) {
         resetPointer();
       } else if (inStudio && points?.length === 21) {
         const mode = studioGesture(points);
@@ -424,7 +425,10 @@ function trackFrame(now) {
     } else if (now - lastInference > 500) {
       resetPointer();
       setTracking('Waiting for camera frames');
-      if (!$('#guide').hidden) drawHand([]);
+      if (!guide.hidden) {
+        guideLandmarks.clear();
+        drawHand([]);
+      }
       if (!tracker.hidden) {
         context.clearRect(0, 0, canvas.width, canvas.height);
         updateTracker(0, 'Waiting for camera frames');
