@@ -83,38 +83,38 @@
   outline: 3px solid #6742b2 !important;
 }
 
-.main-footer { flex-wrap: wrap; }
-
 .developer-credit {
-  flex: 0 0 100%;
-  text-align: center;
-  padding: 12px 0 16px;
-  color: var(--ink);
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  padding: 4px 12px;
+  border-inline: 1px solid var(--line);
 }
 
-.developer-credit strong {
-  display: inline-block;
-  font-size: 12px;
+.developer-credit > span {
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.2;
   font-weight: 700;
-  letter-spacing: .14em;
+  letter-spacing: .08em;
   text-transform: uppercase;
 }
 
 .developer-logos {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 14px;
+  align-items: center;
+  gap: 8px;
 }
 
 .developer-logos img {
-  width: 140px;
-  max-width: 100%;
-  height: 82px;
-  padding: 6px;
+  display: block;
   object-fit: contain;
   background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 4px;
+}
+
+@media (max-width: 560px) {
+  .topbar .local-badge,
+  .topbar .workspace-crumb { display: none; }
+  .developer-credit { padding-inline: 8px; }
 }
