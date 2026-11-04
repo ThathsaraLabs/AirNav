@@ -287,6 +287,9 @@ function stopCamera() {
   $('#camera-button').classList.remove('running'); $('#camera-button span').textContent = 'Enable camera';
   $$('[data-action="start"]:not(#camera-button)').forEach(button => { button.innerHTML = 'Enable camera <svg><use href="#i-camera"/></svg>'; });
   $('#fps-label').textContent = '— FPS';
+  const guideCount = $('#guide-hand-count');
+  guideCount.dataset.count = '0';
+  guideCount.textContent = 'Hands: 0';
   $('#camera-message').textContent = 'Camera stopped. Enable it whenever you are ready.';
   setTracking('Camera is off'); addActivity('Camera stopped', 'Webcam access released');
 }
@@ -300,12 +303,48 @@ function drawHand(hands) {
     }
     return;
   }
-  const points = hands[0];
-  if (!points) return;
-  context.lineWidth = 2;
-  context.strokeStyle = $('#guide').hidden ? '#dce7b9cc' : '#50ffcf';
-  for (const [a, b] of links) { context.beginPath(); context.moveTo(points[a].x * canvas.width, points[a].y * canvas.height); context.lineTo(points[b].x * canvas.width, points[b].y * canvas.height); context.stroke(); }
-  points.forEach((point, index) => { context.beginPath(); context.fillStyle = index === 8 ? '#f78460' : '#f4f8e4'; context.arc(point.x * canvas.width, point.y * canvas.height, index === 8 ? 7 : 3, 0, Math.PI * 2); context.fill(); });
+  const teaching = !$('#guide').hidden;
+  if (teaching) {
+    const count = $('#guide-hand-count');
+    if (count.dataset.count !== String(hands.length)) {
+      count.dataset.count = String(hands.length);
+      count.textContent = `Hands: ${hands.length}`;
+    }
+  }
+  const visibleHands = teaching ? [...hands].sort((a, b) => b[0].x - a[0].x) : hands.slice(0, 1);
+  for (const [handIndex, points] of visibleHands.entries()) {
+    const color = teaching ? ['#50ffcf', '#ff9cfd'][handIndex] : '#dce7b9cc';
+    context.save();
+    context.lineWidth = teaching ? 3 : 2;
+    context.strokeStyle = color;
+    context.beginPath();
+    for (const [a, b] of links) {
+      context.moveTo(points[a].x * canvas.width, points[a].y * canvas.height);
+      context.lineTo(points[b].x * canvas.width, points[b].y * canvas.height);
+    }
+    context.stroke();
+    for (const [index, point] of points.entries()) {
+      context.beginPath();
+      context.fillStyle = teaching ? color : index === 8 ? '#f78460' : '#f4f8e4';
+      context.arc(point.x * canvas.width, point.y * canvas.height, teaching || index === 8 ? 5 : 3, 0, Math.PI * 2);
+      context.fill();
+    }
+    if (teaching) {
+      // The preview mirrors the canvas. Counter-mirror the numbers so they stay readable.
+      context.scale(-1, 1);
+      context.font = 'bold 16px sans-serif';
+      context.lineWidth = 3;
+      context.strokeStyle = '#151222';
+      context.fillStyle = '#fff';
+      for (const [index, point] of points.entries()) {
+        const x = -point.x * canvas.width + 6;
+        const y = point.y * canvas.height - 5;
+        context.strokeText(String(index), x, y);
+        context.fillText(String(index), x, y);
+      }
+    }
+    context.restore();
+  }
 }
 
 function movePointer(point, now, mode = 'select') {
@@ -385,6 +424,7 @@ function trackFrame(now) {
     } else if (now - lastInference > 500) {
       resetPointer();
       setTracking('Waiting for camera frames');
+      if (!$('#guide').hidden) drawHand([]);
       if (!tracker.hidden) {
         context.clearRect(0, 0, canvas.width, canvas.height);
         updateTracker(0, 'Waiting for camera frames');

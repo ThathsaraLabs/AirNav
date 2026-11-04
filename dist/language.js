@@ -135,6 +135,7 @@ An arch within an arch. There is always another way through.|아치 안의 또 �
 Where the water goes|물이 흐르는 곳
 A cool blue coast and a quiet shoreline. Let your eyes wander.|시원한 푸른 바다와 고요한 해안선. 시선을 자유롭게 옮겨 보세요.
 Live MediaPipe landmarks|실시간 MediaPipe 손 관절
+Show both hands. Each hand has 21 points numbered 0–20. Point 0 is the wrist. Fingertips are 4, 8, 12, 16 and 20.|두 손을 보여 주세요. 손마다 0번부터 20번까지 21개 점이 표시됩니다. 0번은 손목이며, 4번, 8번, 12번, 16번, 20번은 손끝입니다.
 MEET YOUR NEW POINTER|새로운 커서 사용법
 A wave to the|손끝으로
 future.|시작하기

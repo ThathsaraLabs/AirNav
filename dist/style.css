@@ -470,6 +470,13 @@ body:has(.workspace-tracker) .topbar,
 
 #guide-preview .camera-message.error { color: #a32620; }
 
+.guide-landmark-key {
+  margin: 0;
+  padding: 0 14px 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
 @media (max-width: 600px) {
   #guide-preview .camera-frame { aspect-ratio: 4 / 3; }
 }
