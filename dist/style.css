@@ -83,7 +83,7 @@
   outline: 3px solid #6742b2 !important;
 }
 
-:root { --developer-strip-height: 48px; }
+:root { --developer-strip-height: 68px; }
 
 .developer-credit {
   position: sticky;
@@ -112,7 +112,7 @@
 .developer-logos {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .developer-logos img {
@@ -125,6 +125,12 @@
 @media (max-width: 560px) {
   .topbar .local-badge,
   .topbar .workspace-crumb { display: none; }
+}
+
+@media (max-width: 360px) {
+  .developer-credit { gap: 8px; }
+  .developer-credit > span { font-size: 11px; }
+  .developer-logos img:last-child { width: 96px; }
 }
 
 .studio-board {
