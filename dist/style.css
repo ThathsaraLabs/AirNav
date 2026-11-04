@@ -262,39 +262,88 @@
 
 .workspace-tracker .control-panel { display: none; }
 
+body:has(.workspace-tracker) { overflow: hidden; }
+body:has(.workspace-tracker) > .developer-credit,
+body:has(.workspace-tracker) > .sidebar,
+body:has(.workspace-tracker) .topbar,
+.workspace-tracker .main-footer { display: none; }
+
 #tracker {
-  max-width: 1040px;
-  margin-inline: auto;
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: #19152a;
 }
 
-.tracker-board {
-  overflow: hidden;
-  border: 1px solid #dad7e6;
-  border-radius: 16px;
-  background: #f5f2fb;
+.tracker-toolbar {
+  position: absolute;
+  z-index: 3;
+  top: max(12px, env(safe-area-inset-top));
+  left: 12px;
+  right: 12px;
+  border: 1px solid #ffffff42;
+  border-radius: 14px;
+  background: #19152aea;
+  color: white;
+}
+
+#tracker-title {
+  margin: 0;
+  font-size: 17px;
+  letter-spacing: 0;
 }
 
 .tracker-readout {
   display: grid;
   gap: 4px;
-  color: var(--ink);
+  color: white;
 }
 
-.tracker-readout span, .tracker-tip {
-  color: var(--muted);
+.tracker-readout span {
+  color: #ded9eb;
   font-size: 13px;
 }
 
+#tracker-preview { position: absolute; inset: 0; }
+
 #tracker-preview .camera-frame {
-  aspect-ratio: 16 / 10;
-  max-height: 65vh;
+  position: absolute;
+  inset: 0;
+  aspect-ratio: auto;
   border: 0;
   border-radius: 0;
   background: #19152a;
 }
 
-#tracker-preview .camera-message { padding: 10px 14px; }
-.tracker-tip { margin-top: 14px; line-height: 1.55; }
+#tracker-preview video,
+#tracker-preview canvas { inset: 0; object-fit: cover; }
+
+#tracker-preview .camera-message {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: max(34px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100% - 28px);
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #19152aea;
+  color: white;
+  font-size: 12px;
+}
+
+.tracker-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 10px;
+  border-radius: 8px;
+  color: white;
+  font-size: 12px;
+}
+
+.tracker-back:hover, .tracker-back:focus-visible { background: #ffffff24; }
 
 @media (max-width: 380px) {
   .sidebar .nav-link { width: 34px; }

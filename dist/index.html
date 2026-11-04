@@ -51,23 +51,19 @@
     <div class="workspace">
       <main id="main-content" tabindex="-1">
         <section class="page" id="tracker" hidden aria-labelledby="tracker-title">
-          <div class="eyebrow">LIVE COMPUTER VISION</div>
-          <h1 id="tracker-title">Hand <span>Tracker.</span></h1>
-          <p class="page-description">See how MediaPipe follows your hand, from the wrist to each fingertip.</p>
-          <div class="tracker-board">
+          <div id="tracker-preview"></div>
             <div class="studio-toolbar tracker-toolbar">
               <div class="tracker-readout">
+                <h1 id="tracker-title">Hand Tracker</h1>
                 <strong id="tracker-hand" role="status">Camera off</strong>
                 <span id="tracker-landmarks">0 / 21 landmarks</span>
               </div>
               <div class="studio-group">
                 <button type="button" id="tracker-overlay" aria-pressed="true">Landmark overlay</button>
                 <button type="button" data-action="start">Enable camera</button>
+                <a class="tracker-back" href="#overview">Exit tracker</a>
               </div>
             </div>
-            <div id="tracker-preview"></div>
-          </div>
-          <p class="tracker-tip">Keep one hand fully visible in the frame. Open your palm or bend a finger to see the joints move. The highlighted point marks your index fingertip.</p>
         </section>
         <section class="page" id="studio" hidden aria-labelledby="studio-title">
           <div class="eyebrow">AIRNAV CREATIVE WORKSPACE</div>
