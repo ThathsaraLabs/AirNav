@@ -245,9 +245,9 @@ function drawHand(points) {
   points.forEach((point, index) => { context.beginPath(); context.fillStyle = index === 8 ? '#f78460' : '#f4f8e4'; context.arc(point.x * canvas.width, point.y * canvas.height, index === 8 ? 7 : 3, 0, Math.PI * 2); context.fill(); });
 }
 
-function movePointer(point, now, penDown = true) {
+function movePointer(point, now, penDown = false) {
   const inStudio = !$('#studio').hidden;
-  const mapped = mapPointer(point, innerWidth, innerHeight, inStudio ? .19 : .12);
+  const mapped = mapPointer(point, innerWidth, innerHeight, inStudio ? .23 : .12);
   if (inStudio) pointer = smoothDrawingPointer(pointer, mapped, now - lastPointerAt, smooth);
   else if (!pointer) pointer = mapped;
   else { pointer.x += (mapped.x - pointer.x) * smooth; pointer.y += (mapped.y - pointer.y) * smooth; }
@@ -260,7 +260,7 @@ function movePointer(point, now, penDown = true) {
   drawingStudio.moveAir(penDown ? element : null, pointer.x, pointer.y);
   const candidate = element?.closest('button:not(:disabled), a[href]');
   const modal = $('dialog[open]');
-  const target = penDown && candidate && (!modal || modal.contains(candidate)) ? candidate : null;
+  const target = !penDown && candidate && (!modal || modal.contains(candidate)) ? candidate : null;
   if (hoverTarget !== target) { hoverTarget?.classList.remove('gesture-hover'); target?.classList.add('gesture-hover'); hoverTarget = target; }
   const state = dwell.update(target, now);
   ring.style.strokeDashoffset = 125.664 * (1 - state.progress);
@@ -281,9 +281,10 @@ function trackFrame(now) {
       const points = result.landmarks[0]; drawHand(points);
       const inStudio = !$('#studio').hidden;
       if (inStudio && points?.length === 21) {
-        const penDown = isDrawingFingerExtended(result.worldLandmarks?.[0] ?? points);
-        setTracking(penDown ? 'Index finger extended' : 'Pen lifted', true);
-        movePointer(points[8], now, penDown);
+        const penDown = !isDrawingFingerExtended(result.worldLandmarks?.[0] ?? points);
+        setTracking(penDown ? 'Index finger bent' : 'Pen lifted', true);
+        // The middle joint stays closer to the same position when the fingertip curls.
+        movePointer(points[6], now, penDown);
       } else if (isIndexPointing(points)) {
         setTracking('Index finger detected', true);
         movePointer(points[8], now);
