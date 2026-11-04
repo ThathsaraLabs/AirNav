@@ -345,7 +345,9 @@ function trackFrame(now) {
       const result = handLandmarker.detectForVideo(video, now);
       const points = result.landmarks[0]; drawHand(result.landmarks);
       const inStudio = !$('#studio').hidden;
-      if (inStudio && points?.length === 21) {
+      if (!tracker.hidden) {
+        resetPointer();
+      } else if (inStudio && points?.length === 21) {
         const mode = studioGesture(points);
         setTracking(mode === 'draw' ? 'Drawing' : mode === 'select' ? 'Selecting tool' : 'Pen lifted', true);
         movePointer(points[8], now, mode);
