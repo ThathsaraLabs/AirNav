@@ -46,6 +46,10 @@
     <header class="topbar">
       <div class="breadcrumb"><span class="workspace-crumb">Workspace /</span><strong id="page-label">Overview</strong></div>
       <div class="topbar-right">
+        <div class="language-switch" role="group" aria-label="Language">
+          <button type="button" data-language="en" lang="en" aria-pressed="true">English</button>
+          <button type="button" data-language="ko" lang="ko" aria-pressed="false">한국어</button>
+        </div>
         <span class="local-badge"><span></span> On-device processing</span>
         <button class="round-button" data-action="settings" aria-label="Open preferences"><svg><use href="#i-settings"/></svg></button>
         <span class="avatar">A</span>
@@ -195,5 +199,6 @@
   <dialog id="preferences"><div class="dialog-header"><span class="eyebrow">MAKE IT FEEL LIKE YOU</span><button class="round-button" data-action="close-settings" aria-label="Close preferences">×</button></div><h2>Your preferences<span>.</span></h2><p>Find a comfortable rhythm for your hand.</p><label for="dwell">Hold to click <output id="dwell-value">1.1 seconds</output></label><input id="dwell" type="range" min="600" max="2000" step="100" value="1100"><div class="setting-buttons"><button data-action="dwell-less">Faster −</button><button data-action="dwell-more">Slower +</button></div><label for="smoothing">Pointer smoothing <output id="smoothing-value">Balanced</output></label><input id="smoothing" type="range" min="10" max="50" step="5" value="30"><div class="setting-buttons"><button data-action="smooth-less">Smoother</button><button data-action="smooth-more">More responsive</button></div><p class="dialog-note">Preferences are saved in this browser. Raise only your index finger to navigate. Camera permission needs a click or tap to get started.</p><button class="dark-button" data-action="close-settings">All set <svg><use href="#i-check"/></svg></button></dialog>
   <dialog id="art-dialog"><div class="dialog-header"><span class="eyebrow">A CLOSER LOOK</span><button class="round-button" data-action="close-art" aria-label="Close artwork">×</button></div><div id="art-preview"></div><h2 id="art-title"></h2><p id="art-description"></p><div class="art-dialog-buttons"><button class="small-button" data-action="previous-art">← Previous</button><button class="small-button" data-action="next-art">Next →</button></div></dialog>
   <script type="module" src="./app.js"></script>
+  <script type="module" src="./language.js"></script>
 </body>
 </html>

@@ -389,3 +389,56 @@ body:has(.workspace-tracker) .topbar,
 .practice-instruction { max-width: 26ch; font-size: 12px; line-height: 1.4; }
 .practice-target .practice-done { display: none; font-size: 11px; font-weight: 700; }
 .practice-target.completed .practice-done { display: block; }
+
+.developer-credit > span {
+  color: #262238;
+  font-size: clamp(13px, 2.8vw, 16px);
+  letter-spacing: .04em;
+}
+
+.language-switch {
+  display: inline-flex;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.language-switch button {
+  min-height: 38px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 7px;
+  color: var(--ink);
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.language-switch button[aria-pressed="true"] {
+  background: #4a2c86;
+  color: #fff;
+}
+
+.language-switch button:focus-visible {
+  outline: 2px solid #6742b2;
+  outline-offset: 2px;
+}
+
+:lang(ko) .page :is(h1, h2, p, li) {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+  .topbar { gap: 8px; padding-inline: 12px; }
+  .topbar-right { gap: 6px; }
+  .topbar .local-badge, .topbar .avatar { display: none; }
+  .language-switch button { min-height: 42px; padding-inline: 8px; }
+  .sidebar nav { gap: clamp(2px, 1vw, 5px); }
+  .sidebar .nav-link { width: clamp(32px, 10vw, 43px); min-height: 44px; }
+}
