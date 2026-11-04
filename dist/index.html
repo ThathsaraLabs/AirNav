@@ -78,7 +78,7 @@
               </div>
               <div class="studio-group">
                 <button type="button" data-action="start">Enable camera</button>
-                <button type="button" id="studio-air" aria-pressed="false">Air ink off</button>
+                <button type="button" id="studio-air" aria-pressed="false" disabled>Resume air ink</button>
               </div>
             </div>
             <canvas id="studio-canvas" width="1280" height="800" aria-label="Drawing canvas" aria-describedby="studio-help"></canvas>
@@ -91,7 +91,7 @@
               <button type="button" id="studio-export" disabled>Save PNG</button>
             </div>
           </div>
-          <p id="studio-help">To draw in the air, enable the camera and dwell on <strong>Air ink off</strong> to turn it on. Move your index finger over the canvas to draw. Curl it to lift the pen.</p>
+          <p id="studio-help">Drag on the canvas with a mouse or touch. For hands-free drawing, enable the camera and move your raised index finger over the canvas. Curl it to lift the pen, or choose <strong>Pause air ink</strong>.</p>
           <div id="studio-camera-status"></div>
         </section>
         <section class="page" id="overview" aria-label="Overview">

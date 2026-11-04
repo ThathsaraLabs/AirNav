@@ -13,6 +13,7 @@ export function createDrawingStudio() {
   let tool = 'pen';
   let color = customColor.value;
   let size = 7;
+  let cameraReady = false;
   let airEnabled = false;
   let active = null;
 
@@ -27,7 +28,8 @@ export function createDrawingStudio() {
       button.setAttribute('aria-pressed', String(selected));
     }
     air.setAttribute('aria-pressed', String(airEnabled));
-    air.textContent = airEnabled ? 'Air ink on' : 'Air ink off';
+    air.disabled = !cameraReady;
+    air.textContent = airEnabled ? 'Pause air ink' : 'Resume air ink';
     canvas.classList.toggle('air-ink', airEnabled);
   }
 
@@ -89,7 +91,9 @@ export function createDrawingStudio() {
   }
 
   canvas.addEventListener('pointerdown', event => {
-    if (event.button !== 0 || active) return;
+    if (event.button !== 0) return;
+    end('air');
+    if (active) return;
     canvas.setPointerCapture(event.pointerId);
     drawAt(event.pointerId, event.clientX, event.clientY);
   });
@@ -134,6 +138,13 @@ export function createDrawingStudio() {
 
   updateControls();
   return {
+    setCameraReady(ready) {
+      if (cameraReady === ready) return;
+      cameraReady = ready;
+      airEnabled = ready;
+      end('air');
+      updateControls();
+    },
     moveAir(element, x, y) {
       if (airEnabled && element === canvas) drawAt('air', x, y);
       else end('air');

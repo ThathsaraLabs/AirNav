@@ -41,6 +41,7 @@ function route() {
   const requested = location.hash.slice(1);
   const page = Object.hasOwn(pages, requested) ? requested : 'overview';
   $('.workspace').classList.toggle('workspace-studio', page === 'studio');
+  drawingStudio.setCameraReady(page === 'studio' && running);
   if (page === 'studio') $('#studio-camera-status').append(cameraMessage);
   else cameraMessageHome.after(cameraMessage);
   $$('.page').forEach(section => { section.hidden = section.id !== page; });
@@ -188,6 +189,7 @@ async function startCamera() {
     if (generation !== cameraGeneration) return;
     canvas.width = video.videoWidth; canvas.height = video.videoHeight;
     running = true; cameraStarted = performance.now(); fpsTime = cameraStarted; frames = 0; lastVideoTime = -1;
+    drawingStudio.setCameraReady(!$('#studio').hidden);
     $('#camera-placeholder').hidden = true;
     $('#camera-badge').classList.add('live'); $('#camera-badge').innerHTML = '<span></span> Live';
     $('#camera-button').classList.add('running');
@@ -214,6 +216,7 @@ function stopCamera() {
   cameraGeneration++;
   if (running) totalCameraTime += performance.now() - cameraStarted;
   running = false; cancelAnimationFrame(animation);
+  drawingStudio.setCameraReady(false);
   stream?.getTracks().forEach(track => track.stop()); stream = null;
   video.srcObject = null; context.clearRect(0, 0, canvas.width, canvas.height);
   resetPointer();
@@ -284,4 +287,4 @@ document.addEventListener('visibilitychange', () => {
 });
 window.addEventListener('pagehide', () => { stream?.getTracks().forEach(track => track.stop()); });
 window.addEventListener('resize', resetPointer);
-window.addEventListener('scroll', () => { dwell.reset(); hoverTarget?.classList.remove('gesture-hover'); hoverTarget = null; ring.style.strokeDashoffset = 125.664; }, { passive: true });
+window.addEventListener('scroll', () => { drawingStudio.endAir(); dwell.reset(); hoverTarget?.classList.remove('gesture-hover'); hoverTarget = null; ring.style.strokeDashoffset = 125.664; }, { passive: true });
