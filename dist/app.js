@@ -1,4 +1,4 @@
-import { isDrawingFingerExtended, isIndexPointing, mapPointer, DwellController } from './gestures.js';
+import { isDrawingFingerExtended, isIndexPointing, mapPointer, smoothDrawingPointer, DwellController } from './gestures.js';
 import { createDrawingStudio } from './studio.js';
 
 const $ = selector => document.querySelector(selector);
@@ -13,8 +13,12 @@ const drawingStudio = createDrawingStudio();
 const cameraMessage = $('#camera-message');
 const cameraMessageHome = document.createComment('Camera status position');
 cameraMessage.before(cameraMessageHome);
+const cameraFrame = video.closest('.camera-frame');
+const cameraFrameHome = document.createComment('Camera preview position');
+cameraFrame.before(cameraFrameHome);
 let handLandmarker, stream, running = false, loading = false, animation;
 let smooth = .3, pointer = null, lastVideoTime = -1, lastInference = 0;
+let lastPointerAt = 0;
 let cameraStarted = 0, totalCameraTime = 0, gestureClicks = 0, frames = 0, fpsTime = 0;
 let cameraGeneration = 0, lastTrackingMessage = '', hoverTarget = null, toastTimeout;
 let practiceHits = 0;
@@ -42,8 +46,11 @@ function route() {
   const page = Object.hasOwn(pages, requested) ? requested : 'overview';
   $('.workspace').classList.toggle('workspace-studio', page === 'studio');
   drawingStudio.setCameraReady(page === 'studio' && running);
-  if (page === 'studio') $('#studio-camera-status').append(cameraMessage);
-  else cameraMessageHome.after(cameraMessage);
+  if (page === 'studio') $('#studio-camera-status').append(cameraFrame, cameraMessage);
+  else {
+    cameraFrameHome.after(cameraFrame);
+    cameraMessageHome.after(cameraMessage);
+  }
   $$('.page').forEach(section => { section.hidden = section.id !== page; });
   $$('.nav-link').forEach(link => {
     const active = link.dataset.page === page;
@@ -239,9 +246,12 @@ function drawHand(points) {
 }
 
 function movePointer(point, now, penDown = true) {
-  const mapped = mapPointer(point, innerWidth, innerHeight);
-  if (!pointer) pointer = mapped;
+  const inStudio = !$('#studio').hidden;
+  const mapped = mapPointer(point, innerWidth, innerHeight, inStudio ? .19 : .12);
+  if (inStudio) pointer = smoothDrawingPointer(pointer, mapped, now - lastPointerAt, smooth);
+  else if (!pointer) pointer = mapped;
   else { pointer.x += (mapped.x - pointer.x) * smooth; pointer.y += (mapped.y - pointer.y) * smooth; }
+  lastPointerAt = now;
   cursor.hidden = false;
   cursor.style.left = `${pointer.x}px`; cursor.style.top = `${pointer.y}px`;
   const element = document.elementFromPoint(pointer.x, pointer.y);

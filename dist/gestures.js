@@ -23,6 +23,18 @@ export function isDrawingFingerExtended(points) {
   return lengths > 0 && dot / lengths > .6;
 }
 
+export function smoothDrawingPointer(previous, next, elapsed, smoothing) {
+  if (!previous || elapsed <= 0 || elapsed > 250) return next;
+  const distance = Math.hypot(next.x - previous.x, next.y - previous.y);
+  // Suppress small landmark fluctuations without lagging behind deliberate moves.
+  const responsiveness = smoothing + (1 - smoothing) * Math.min(distance / 100, .9);
+  const blend = 1 - (1 - responsiveness) ** (elapsed / (1000 / 30));
+  return {
+    x: previous.x + (next.x - previous.x) * blend,
+    y: previous.y + (next.y - previous.y) * blend,
+  };
+}
+
 export class DwellController {
   constructor(duration = 1100) { this.duration = duration; this.reset(); }
   reset() { this.target = null; this.started = 0; this.activated = false; }

@@ -238,6 +238,19 @@
   line-height: 1.55;
 }
 
+#studio-camera-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin: 12px 0;
+}
+
+#studio-camera-status .camera-frame {
+  width: 120px;
+  aspect-ratio: 4 / 3;
+}
+
 @media (max-width: 380px) {
   .sidebar .nav-link { width: 36px; }
   .sidebar nav { gap: 3px; }
