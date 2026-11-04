@@ -87,16 +87,25 @@
 
 .developer-credit {
   flex: 0 0 100%;
+  text-align: center;
+  padding: 12px 0 16px;
   color: var(--ink);
-  font-size: 14px;
-  letter-spacing: 0;
+}
+
+.developer-credit strong {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
 }
 
 .developer-logos {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 12px;
-  margin-top: 10px;
+  margin-top: 14px;
 }
 
 .developer-logos img {
