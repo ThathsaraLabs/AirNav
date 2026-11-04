@@ -1,0 +1,12 @@
+{
+  "name": "airnav",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "One-finger webcam gesture navigation with MediaPipe",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests/gestures.test.js",
+    "check": "node --check dist/app.js && node --check dist/gestures.js && node --check server.mjs"
+  }
+}
