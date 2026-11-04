@@ -41,8 +41,8 @@
 .practice-target:nth-child(4) { background: #faeab5; color: #66501a; }
 
 #gesture-cursor {
-  width: 60px;
-  height: 60px;
+  width: 68px;
+  height: 68px;
   filter: drop-shadow(0 0 2px #121323) drop-shadow(0 2px 3px #121323b3);
 }
 
@@ -54,7 +54,13 @@
 
 #gesture-cursor .cursor-track {
   stroke: #fff;
-  fill: #12132333;
+  fill: none;
+}
+
+#gesture-cursor .cursor-outline {
+  fill: #17152a66;
+  stroke: #17152a;
+  stroke-width: 7;
 }
 
 #dwell-ring {
@@ -63,8 +69,8 @@
 }
 
 #gesture-cursor > span {
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
@@ -75,5 +81,31 @@
 
 .gesture-hover {
   outline: 3px solid #6742b2 !important;
+}
 
+.main-footer { flex-wrap: wrap; }
+
+.developer-credit {
+  flex: 0 0 100%;
+  color: var(--ink);
+  font-size: 14px;
+  letter-spacing: 0;
+}
+
+.developer-logos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.developer-logos img {
+  width: 140px;
+  max-width: 100%;
+  height: 82px;
+  padding: 6px;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
 }
