@@ -23,14 +23,10 @@ export function mapPointerToCanvas(point, rect, viewportWidth, viewportHeight, t
   return { x: left + 1 + local.x, y: top + 1 + local.y };
 }
 
-export function isDrawingFingerExtended(points) {
-  if (!points || points.length !== 21) return false;
-  const [base, joint, tip] = [points[5], points[6], points[8]];
-  const first = [joint.x - base.x, joint.y - base.y, (joint.z ?? 0) - (base.z ?? 0)];
-  const second = [tip.x - joint.x, tip.y - joint.y, (tip.z ?? 0) - (joint.z ?? 0)];
-  const lengths = Math.hypot(...first) * Math.hypot(...second);
-  const dot = first.reduce((sum, value, i) => sum + value * second[i], 0);
-  return lengths > 0 && dot / lengths > .6;
+// Virtual Painter gesture rule: compare each fingertip with its PIP joint.
+export function studioGesture(points) {
+  if (!points || points.length !== 21 || !(points[8].y < points[6].y)) return 'idle';
+  return points[12].y < points[10].y ? 'select' : 'draw';
 }
 
 export function smoothDrawingPointer(previous, next, elapsed, smoothing) {
