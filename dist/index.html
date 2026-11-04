@@ -19,12 +19,20 @@
     <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
     <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5a2 2 0 0 1 4 0v6-2a2 2 0 0 1 4 0v2-1a2 2 0 0 1 4 0v7c0 4-3 5-6 5-2 0-4-1-5-2l-6-6a2 2 0 0 1 3-3l2 2Z"/></symbol>
   </defs></svg>
+  <div class="developer-credit" role="group" aria-label="Developed by">
+    <span aria-hidden="true">Developed by</span>
+    <div class="developer-logos">
+      <img src="./logos/ss-lab.png" alt="Smart Software Lab" width="32" height="30">
+      <img src="./logos/knu.jpeg" alt="Kyungpook National University" width="52" height="30">
+    </div>
+  </div>
   <aside class="sidebar">
     <a class="brand" href="#overview" aria-label="AirNav home"><span class="brand-mark">a<span>↗</span></span>airnav<span class="brand-dot">.</span></a>
     <div class="workspace-label">YOUR TOUCH-FREE SPACE</div>
     <nav aria-label="Main navigation">
       <a href="#overview" class="nav-link" data-page="overview"><svg><use href="#i-grid"/></svg>Overview<span class="nav-dot"></span></a>
       <a href="#playground" class="nav-link" data-page="playground"><svg><use href="#i-cursor"/></svg>Playground<span class="mini-tag">TRY IT</span></a>
+      <a href="#studio" class="nav-link" data-page="studio" aria-label="Drawing Studio"><svg viewBox="0 0 24 24"><path d="m4 16 12-12 4 4L8 20l-5 1zM13 7l4 4"/></svg>Studio</a>
       <a href="#gallery" class="nav-link" data-page="gallery"><svg><use href="#i-image"/></svg>Gallery</a>
       <a href="#guide" class="nav-link" data-page="guide"><svg><use href="#i-book"/></svg>How it works</a>
     </nav>
@@ -35,19 +43,53 @@
       <div class="breadcrumb"><span class="workspace-crumb">Workspace /</span><strong id="page-label">Overview</strong></div>
       <div class="topbar-right">
         <span class="local-badge"><span></span> On-device processing</span>
-        <div class="developer-credit" role="group" aria-label="Developed by">
-          <span aria-hidden="true">Developed by</span>
-          <div class="developer-logos">
-            <img src="./logos/ss-lab.png" alt="Smart Software Lab" width="32" height="30">
-            <img src="./logos/knu.jpeg" alt="Kyungpook National University" width="52" height="30">
-          </div>
-        </div>
         <button class="round-button" data-action="settings" aria-label="Open preferences"><svg><use href="#i-settings"/></svg></button>
         <span class="avatar">A</span>
       </div>
     </header>
     <div class="workspace">
       <main id="main-content" tabindex="-1">
+        <section class="page" id="studio" hidden aria-labelledby="studio-title">
+          <div class="eyebrow">AIRNAV CREATIVE WORKSPACE</div>
+          <h1 id="studio-title">Drawing <span>Studio.</span></h1>
+          <p class="page-description">Sketch with your mouse, touch, or one finger in the air.</p>
+          <div class="studio-board">
+            <div class="studio-toolbar">
+              <div class="studio-group" role="group" aria-label="Drawing tools">
+                <button type="button" data-studio-tool="pen" aria-pressed="true">Pen</button>
+                <button type="button" data-studio-tool="pencil" aria-pressed="false">Pencil</button>
+                <button type="button" data-studio-tool="eraser" aria-pressed="false">Eraser</button>
+              </div>
+              <div class="studio-group" role="group" aria-label="Stroke size">
+                <button type="button" data-studio-size="3" aria-label="Fine stroke" aria-pressed="false">Fine</button>
+                <button type="button" data-studio-size="7" aria-label="Medium stroke" aria-pressed="true">Medium</button>
+                <button type="button" data-studio-size="15" aria-label="Bold stroke" aria-pressed="false">Bold</button>
+              </div>
+            </div>
+            <div class="studio-toolbar">
+              <div class="studio-group studio-palette" role="group" aria-label="Ink color">
+                <button type="button" data-studio-color="#23213b" style="--swatch:#23213b" aria-label="Ink" aria-pressed="true"></button>
+                <button type="button" data-studio-color="#6742b2" style="--swatch:#6742b2" aria-label="Violet" aria-pressed="false"></button>
+                <button type="button" data-studio-color="#2468ce" style="--swatch:#2468ce" aria-label="Blue" aria-pressed="false"></button>
+                <button type="button" data-studio-color="#08796b" style="--swatch:#08796b" aria-label="Teal" aria-pressed="false"></button>
+                <button type="button" data-studio-color="#c7443c" style="--swatch:#c7443c" aria-label="Coral" aria-pressed="false"></button>
+                <button type="button" data-studio-color="#a66b0a" style="--swatch:#a66b0a" aria-label="Amber" aria-pressed="false"></button>
+                <label class="studio-custom">Custom <input type="color" id="studio-color" value="#23213b" aria-label="Custom ink color"></label>
+              </div>
+              <button type="button" id="studio-air" aria-pressed="false">Air ink off</button>
+            </div>
+            <canvas id="studio-canvas" width="1280" height="800" aria-label="Drawing canvas" aria-describedby="studio-help"></canvas>
+            <div class="studio-toolbar studio-actions">
+              <div class="studio-group">
+                <button type="button" id="studio-undo" disabled>Undo</button>
+                <button type="button" id="studio-redo" disabled>Redo</button>
+                <button type="button" id="studio-clear" disabled>Clear canvas</button>
+              </div>
+              <button type="button" id="studio-export" disabled>Save PNG</button>
+            </div>
+          </div>
+          <p id="studio-help">To draw in the air, enable the camera and dwell on <strong>Air ink off</strong> to turn it on. Move your index finger over the canvas to draw. Curl it to lift the pen.</p>
+        </section>
         <section class="page" id="overview" aria-label="Overview">
           <div class="page-heading"><div><div class="eyebrow">LESS TOUCH. MORE POSSIBILITY.</div><h1>Your next move<br>starts with a finger<span>.</span></h1><p>A new way to explore the web. Point, hover, and go.<br>No mouse. Just you.</p></div><span class="edition">THE GESTURE<br>EXPERIMENT <span>↗</span></span></div>
           <div class="hero-card"><div class="hero-copy"><span class="pill"><span></span> A NEW KIND OF INTERACTION</span><h2>One finger.<br>Full control.</h2><p>Turn the space in front of you<br>into your personal touchpad.</p><button class="dark-button" data-action="start">Enable camera <svg><use href="#i-arrow"/></svg></button><span class="hero-footnote">Your camera. Your browser. Your privacy.</span></div><div class="hand-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><span class="coord coord-one">X: 0.52</span><span class="coord coord-two">INDEX FINGER · 08</span><svg class="hand-illustration" viewBox="0 0 300 330"><path class="hand-shadow" d="M105 302c-7-30-39-59-55-87-8-15 8-29 20-16l30 30-4-147c-1-26 27-28 28-1l7 94 1-28c1-25 27-24 28 1l1 21c2-24 28-24 29-2l2 17c4-22 27-19 28 0l4 58c1 26-10 44-16 62Z"/><path class="hand-shape" d="M97 293c-7-30-39-59-55-87-8-15 8-29 20-16l30 30-4-147c-1-26 27-28 28-1l7 94 1-28c1-25 27-24 28 1l1 21c2-24 28-24 29-2l2 17c4-22 27-19 28 0l4 58c1 26-10 44-16 62Z"/><g class="hand-lines"><path d="m99 78 5 63 3 56 41 42 53 1m-53-1-19-73m19 73 9-79m-9 79 35-64m-35 64-51 54m0 0-24-64-24-29"/></g><g class="hand-joints"><circle cx="99" cy="78" r="7"/><circle cx="104" cy="141" r="4"/><circle cx="107" cy="197" r="4"/><circle cx="129" cy="166" r="4"/><circle cx="157" cy="160" r="4"/><circle cx="183" cy="175" r="4"/><circle cx="148" cy="239" r="5"/><circle cx="201" cy="240" r="4"/><circle cx="97" cy="293" r="4"/><circle cx="73" cy="229" r="4"/><circle cx="49" cy="200" r="4"/></g><circle class="tip-ring" cx="99" cy="78" r="20"/><circle class="tip-ring outer" cx="99" cy="78" r="30"/></svg><span class="floating-label"><span></span> You're in control</span><svg class="art-cursor" viewBox="0 0 24 24"><use href="#i-cursor"/></svg></div></div>

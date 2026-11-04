@@ -1,4 +1,5 @@
 import { isIndexPointing, mapPointer, DwellController } from './gestures.js';
+import { createDrawingStudio } from './studio.js';
 
 const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
@@ -8,6 +9,7 @@ const context = canvas.getContext('2d');
 const cursor = $('#gesture-cursor');
 const ring = $('#dwell-ring');
 const dwell = new DwellController();
+const drawingStudio = createDrawingStudio();
 let handLandmarker, stream, running = false, loading = false, animation;
 let smooth = .3, pointer = null, lastVideoTime = -1, lastInference = 0;
 let cameraStarted = 0, totalCameraTime = 0, gestureClicks = 0, frames = 0, fpsTime = 0;
@@ -15,7 +17,7 @@ let cameraGeneration = 0, lastTrackingMessage = '', hoverTarget = null, toastTim
 let practiceHits = 0;
 const hitTargets = new Set();
 const links = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[0,17],[17,18],[18,19],[19,20]];
-const pages = { overview: 'Overview', playground: 'Playground', gallery: 'Gallery', guide: 'How it works' };
+const pages = { overview: 'Overview', playground: 'Playground', studio: 'Drawing Studio', gallery: 'Gallery', guide: 'How it works' };
 const artworks = [
   { title: 'A softer kind of bold', type: 'shapes', className: 'art-one', description: 'Warm terracotta and soft sand. A study in simple forms sharing the same space.' },
   { title: 'Somewhere slower', type: 'landscapes', className: 'art-two', description: 'Rolling green hills beneath a pale sun. A reminder to take your time.' },
@@ -144,6 +146,7 @@ function setTracking(message, active = false) {
 }
 
 function resetPointer() {
+  drawingStudio.endAir();
   dwell.reset(); pointer = null; cursor.hidden = true;
   if (hoverTarget) hoverTarget.classList.remove('gesture-hover');
   hoverTarget = null; ring.style.strokeDashoffset = 125.664;
@@ -232,6 +235,7 @@ function movePointer(point, now) {
   cursor.hidden = false;
   cursor.style.left = `${pointer.x}px`; cursor.style.top = `${pointer.y}px`;
   const element = document.elementFromPoint(pointer.x, pointer.y);
+  drawingStudio.moveAir(element, pointer.x, pointer.y);
   const candidate = element?.closest('button:not(:disabled), a[href]');
   const modal = $('dialog[open]');
   const target = candidate && (!modal || modal.contains(candidate)) ? candidate : null;
